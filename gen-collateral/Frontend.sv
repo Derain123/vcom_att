@@ -194,8 +194,6 @@ module Frontend(
                 io_cpu_resp_bits_xcpt_ae_inst,
                 io_cpu_resp_bits_replay,
                 io_cpu_gpa_valid,
-                io_cpu_perf_acquire,
-                io_cpu_perf_tlbMiss,
                 io_ptw_req_valid,
                 io_ptw_req_bits_valid,
   output [26:0] io_ptw_req_bits_bits_addr,
@@ -260,7 +258,6 @@ module Frontend(
   reg         s2_replay_REG;	// @[Frontend.scala:129:56]
   wire        s2_replay = s2_valid & ~_T_37 | s2_replay_REG;	// @[Decoupled.scala:51:35, Frontend.scala:103:25, :129:{26,29,46,56}]
   reg  [1:0]  recent_progress_counter;	// @[Frontend.scala:150:40]
-  wire        _io_cpu_perf_tlbMiss_T = io_ptw_req_ready & _tlb_io_ptw_req_valid;	// @[Decoupled.scala:51:35, Frontend.scala:100:19]
   wire        s2_kill_speculative_tlb_refill = s2_speculative & ~(|recent_progress_counter);	// @[Frontend.scala:118:31, :150:40, :151:49, :155:{55,58}]
   wire        _icache_io_s2_kill_T_2 = s2_speculative & ~(s2_tlb_resp_cacheable & ~(io_ptw_customCSRs_csrs_0_value[3])) | s2_xcpt;	// @[CustomCSRs.scala:40:69, Frontend.scala:116:24, :117:60, :118:31, :174:{59,62}, :175:{39,42,71}]
   reg         fq_io_enq_valid_REG;	// @[Frontend.scala:179:29]
@@ -293,7 +290,7 @@ module Frontend(
   wire        taken_predictBranch = s2_btb_resp_bits_bht_value & (_taken_T_19 | _taken_T_20);	// @[Frontend.scala:114:29, :254:{41,53,66,75}]
   wire        _taken_T_29 = s2_valid & s2_btb_resp_valid;	// @[Frontend.scala:103:25, :113:44, :256:22]
   wire        _taken_T_5 = _taken_T_29 & ~s2_btb_resp_bits_bridx & taken_valid & (&(_icache_io_resp_bits_data[1:0]));	// @[Frontend.scala:65:26, :114:29, :228:{39,45}, :230:44, :231:37, :256:{22,69,88}]
-  wire [32:0] _taken_npc_T_2 = taken_prevRVI ? {{13{_icache_io_resp_bits_data[15]}}, s2_partial_insn[3] ? {_icache_io_resp_bits_data[3:0], s2_partial_insn[15:12], _icache_io_resp_bits_data[4], _icache_io_resp_bits_data[14:5]} : {{8{_icache_io_resp_bits_data[15]}}, s2_partial_insn[7], _icache_io_resp_bits_data[14:9], s2_partial_insn[11:8]}, 1'h0} - 33'h2 : {{22{_icache_io_resp_bits_data[12]}}, _icache_io_resp_bits_data[14] ? {{3{_icache_io_resp_bits_data[12]}}, _icache_io_resp_bits_data[6:5], _icache_io_resp_bits_data[2], _icache_io_resp_bits_data[11:10], _icache_io_resp_bits_data[4:3]} : {_icache_io_resp_bits_data[8], _icache_io_resp_bits_data[10:9], _icache_io_resp_bits_data[6], _icache_io_resp_bits_data[7], _icache_io_resp_bits_data[2], _icache_io_resp_bits_data[11], _icache_io_resp_bits_data[5:3]}, 1'h0};	// @[Cat.scala:33:92, Frontend.scala:65:26, :120:28, :229:31, :231:37, :237:42, :242:{23,28}, :247:{23,31}, :284:{44,61}, RVC.scala:44:{36,42,51,57,69,76}, :45:{27,35,43,49,59}, RocketCore.scala:1275:44, :1277:65, :1279:39, :1281:62, :1283:57]
+  wire [32:0] _taken_npc_T_2 = taken_prevRVI ? {{13{_icache_io_resp_bits_data[15]}}, s2_partial_insn[3] ? {_icache_io_resp_bits_data[3:0], s2_partial_insn[15:12], _icache_io_resp_bits_data[4], _icache_io_resp_bits_data[14:5]} : {{8{_icache_io_resp_bits_data[15]}}, s2_partial_insn[7], _icache_io_resp_bits_data[14:9], s2_partial_insn[11:8]}, 1'h0} - 33'h2 : {{22{_icache_io_resp_bits_data[12]}}, _icache_io_resp_bits_data[14] ? {{3{_icache_io_resp_bits_data[12]}}, _icache_io_resp_bits_data[6:5], _icache_io_resp_bits_data[2], _icache_io_resp_bits_data[11:10], _icache_io_resp_bits_data[4:3]} : {_icache_io_resp_bits_data[8], _icache_io_resp_bits_data[10:9], _icache_io_resp_bits_data[6], _icache_io_resp_bits_data[7], _icache_io_resp_bits_data[2], _icache_io_resp_bits_data[11], _icache_io_resp_bits_data[5:3]}, 1'h0};	// @[Cat.scala:33:92, Frontend.scala:65:26, :120:28, :229:31, :231:37, :237:42, :242:{23,28}, :247:{23,31}, :284:{44,61}, RVC.scala:44:{36,42,51,57,69,76}, :45:{27,35,43,49,59}, RocketCore.scala:1276:44, :1278:65, :1280:39, :1282:62, :1284:57]
   wire        taken_prevRVI_1 = taken_valid & (&(_icache_io_resp_bits_data[1:0]));	// @[Frontend.scala:65:26, :228:{39,45}, :229:31, :230:44, :231:37]
   wire        taken_valid_1 = _fq_io_enq_bits_mask_T_1[1] & ~taken_prevRVI_1;	// @[Frontend.scala:184:50, :229:31, :230:{38,44,47}]
   wire        taken_rviBranch_1 = _icache_io_resp_bits_data[6:0] == 7'h63;	// @[Frontend.scala:65:26, :234:{30,36}]
@@ -319,7 +316,7 @@ module Frontend(
   assign after_idx = taken_taken ? 2'h1 : 2'h2;	// @[Frontend.scala:250:71, :265:25, :267:19]
   assign _GEN = taken_taken ? ((taken_prevRVI ? taken_rviReturn : taken_rvcReturn) ? 2'h3 : (taken_prevRVI ? taken_rviCall : taken_rvcJALR) ? 2'h2 : {1'h0, ~(taken_prevRVI ? taken_rviBranch : taken_rvcBranch)}) : (taken_prevRVI_1 ? taken_rviReturn_1 : taken_rvcReturn_1) ? 2'h3 : (taken_prevRVI_1 ? taken_rviCall_1 : taken_rvcJALR_1) ? 2'h2 : {1'h0, ~(taken_prevRVI_1 ? taken_rviBranch_1 : taken_rvcBranch_1)};	// @[Frontend.scala:123:29, :229:31, :234:36, :237:46, :238:42, :239:52, :244:29, :245:49, :250:71, :265:25, :269:{40,46,50}, :270:{46,50}, :271:{46,50}]
   wire [39:0] taken_pc_1 = s2_base_pc | 40'h2;	// @[Frontend.scala:217:22, :282:33]
-  wire [30:0] _GEN_4 = taken_prevRVI_1 ? {{12{_icache_io_resp_bits_data[31]}}, _icache_io_resp_bits_data[3] ? {_icache_io_resp_bits_data[19:12], _icache_io_resp_bits_data[20], _icache_io_resp_bits_data[30:21]} : {{8{_icache_io_resp_bits_data[31]}}, _icache_io_resp_bits_data[7], _icache_io_resp_bits_data[30:25], _icache_io_resp_bits_data[11:8]}} : {{21{_icache_io_resp_bits_data[28]}}, _icache_io_resp_bits_data[30] ? {{3{_icache_io_resp_bits_data[28]}}, _icache_io_resp_bits_data[22:21], _icache_io_resp_bits_data[18], _icache_io_resp_bits_data[27:26], _icache_io_resp_bits_data[20:19]} : {_icache_io_resp_bits_data[24], _icache_io_resp_bits_data[26:25], _icache_io_resp_bits_data[22], _icache_io_resp_bits_data[23], _icache_io_resp_bits_data[18], _icache_io_resp_bits_data[27], _icache_io_resp_bits_data[21:19]}};	// @[Cat.scala:33:92, Frontend.scala:65:26, :229:31, :231:37, :237:42, :242:{23,28}, :247:{23,31}, :285:71, RVC.scala:44:{36,42,51,57,69,76}, :45:{27,35,43,49,59}, RocketCore.scala:1275:44, :1277:65, :1279:39, :1281:62, :1283:57]
+  wire [30:0] _GEN_4 = taken_prevRVI_1 ? {{12{_icache_io_resp_bits_data[31]}}, _icache_io_resp_bits_data[3] ? {_icache_io_resp_bits_data[19:12], _icache_io_resp_bits_data[20], _icache_io_resp_bits_data[30:21]} : {{8{_icache_io_resp_bits_data[31]}}, _icache_io_resp_bits_data[7], _icache_io_resp_bits_data[30:25], _icache_io_resp_bits_data[11:8]}} : {{21{_icache_io_resp_bits_data[28]}}, _icache_io_resp_bits_data[30] ? {{3{_icache_io_resp_bits_data[28]}}, _icache_io_resp_bits_data[22:21], _icache_io_resp_bits_data[18], _icache_io_resp_bits_data[27:26], _icache_io_resp_bits_data[20:19]} : {_icache_io_resp_bits_data[24], _icache_io_resp_bits_data[26:25], _icache_io_resp_bits_data[22], _icache_io_resp_bits_data[23], _icache_io_resp_bits_data[18], _icache_io_resp_bits_data[27], _icache_io_resp_bits_data[21:19]}};	// @[Cat.scala:33:92, Frontend.scala:65:26, :229:31, :231:37, :237:42, :242:{23,28}, :247:{23,31}, :285:71, RVC.scala:44:{36,42,51,57,69,76}, :45:{27,35,43,49,59}, RocketCore.scala:1276:44, :1278:65, :1280:39, :1282:62, :1284:57]
   assign updateBTB = ~taken_taken & ~s2_btb_resp_valid & (taken_predictBranch_1 & s2_btb_resp_bits_bht_value | taken_predictJump_1 | taken_predictReturn_1) | ~s2_btb_resp_valid & (taken_predictBranch & s2_btb_resp_bits_bht_value | taken_predictJump | taken_predictReturn);	// @[Frontend.scala:113:44, :114:29, :250:71, :252:49, :253:44, :254:41, :265:{13,25}, :293:{15,34,52,106,125}, :294:21]
   wire        taken = taken_taken | taken_taken_1;	// @[Frontend.scala:250:71, :306:19]
   assign predicted_npc = ~taken_taken & ~s2_btb_taken & s2_valid & taken_predictReturn_1 | ~s2_btb_taken & s2_valid & taken_predictReturn ? {1'h0, _btb_io_ras_head_bits} : ~taken_taken & ~s2_btb_taken & s2_valid & (taken_predictBranch_1 | taken_predictJump_1) ? (taken_prevRVI_1 ? taken_pc_1 - 40'h2 : taken_pc_1) + {{8{_GEN_4[30]}}, _GEN_4, 1'h0} : ~s2_btb_taken & s2_valid & (taken_predictBranch | taken_predictJump) ? s2_base_pc + {{7{_taken_npc_T_2[32]}}, _taken_npc_T_2} : predicted_taken ? {_btb_io_resp_bits_target[38], _btb_io_resp_bits_target} : ~(~s1_pc | 40'h3) + 40'h4;	// @[Cat.scala:33:92, Frontend.scala:103:25, :110:18, :115:40, :123:{20,22,29}, :124:25, :125:34, :193:21, :208:{29,56}, :209:21, :217:22, :220:29, :229:31, :250:71, :252:49, :253:44, :254:41, :265:{13,25}, :274:{15,30}, :278:44, :279:20, :281:{44,61}, :282:33, :284:{39,44}, :285:{23,36,66,71}, :286:27, :325:19, :326:21, package.scala:124:38]
@@ -373,7 +370,7 @@ module Frontend(
       s2_replay_REG <= s2_replay & ~s0_valid;	// @[Frontend.scala:108:35, :129:{46,56,67,70}]
       if (io_cpu_progress)
         recent_progress_counter <= 2'h3;	// @[Frontend.scala:123:29, :150:40]
-      else if (_io_cpu_perf_tlbMiss_T & (|recent_progress_counter))	// @[Decoupled.scala:51:35, Frontend.scala:150:40, :151:49, :152:24]
+      else if (io_ptw_req_ready & _tlb_io_ptw_req_valid & (|recent_progress_counter))	// @[Frontend.scala:100:19, :150:40, :151:49, :152:24]
         recent_progress_counter <= recent_progress_counter - 2'h1;	// @[Frontend.scala:150:40, :152:97]
     end
     if (io_cpu_req_valid)
@@ -478,8 +475,7 @@ module Frontend(
     .io_resp_valid                  (_icache_io_resp_valid),
     .io_resp_bits_data              (_icache_io_resp_bits_data),
     .io_resp_bits_replay            (_icache_io_resp_bits_replay),
-    .io_resp_bits_ae                (_icache_io_resp_bits_ae),
-    .io_perf_acquire                (io_cpu_perf_acquire)
+    .io_resp_bits_ae                (_icache_io_resp_bits_ae)
   );
   ShiftQueue fq (	// @[Frontend.scala:86:64]
     .clock                       (clock),
@@ -644,7 +640,6 @@ module Frontend(
     .io_ras_head_bits                      (_btb_io_ras_head_bits)
   );
   assign io_cpu_gpa_valid = gpa_valid;	// @[Frontend.scala:348:22]
-  assign io_cpu_perf_tlbMiss = _io_cpu_perf_tlbMiss_T;	// @[Decoupled.scala:51:35]
   assign io_ptw_req_valid = _tlb_io_ptw_req_valid;	// @[Frontend.scala:100:19]
 endmodule
 

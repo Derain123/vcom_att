@@ -69,7 +69,7 @@
 `endif // not def INIT_RANDOM_PROLOG_
 
 // VCS coverage exclude_file
-module rf_combMem(	// @[RocketCore.scala:1253:15]
+module rf_combMem(	// @[RocketCore.scala:1254:15]
   input  [4:0]  R0_addr,
   input         R0_en,
                 R0_clk,
@@ -84,27 +84,27 @@ module rf_combMem(	// @[RocketCore.scala:1253:15]
                 R1_data
 );
 
-  reg [63:0] Memory[0:30];	// @[RocketCore.scala:1253:15]
-  always @(posedge W0_clk) begin	// @[RocketCore.scala:1253:15]
-    if (W0_en)	// @[RocketCore.scala:1253:15]
-      Memory[W0_addr] <= W0_data;	// @[RocketCore.scala:1253:15]
+  reg [63:0] Memory[0:30];	// @[RocketCore.scala:1254:15]
+  always @(posedge W0_clk) begin	// @[RocketCore.scala:1254:15]
+    if (W0_en)	// @[RocketCore.scala:1254:15]
+      Memory[W0_addr] <= W0_data;	// @[RocketCore.scala:1254:15]
   end // always @(posedge)
-  `ifndef SYNTHESIS	// @[RocketCore.scala:1253:15]
-    `ifdef RANDOMIZE_MEM_INIT	// @[RocketCore.scala:1253:15]
-      integer initvar;	// @[RocketCore.scala:1253:15]
-      reg [63:0] _RANDOM_MEM;	// @[RocketCore.scala:1253:15]
+  `ifndef SYNTHESIS	// @[RocketCore.scala:1254:15]
+    `ifdef RANDOMIZE_MEM_INIT	// @[RocketCore.scala:1254:15]
+      integer initvar;	// @[RocketCore.scala:1254:15]
+      reg [63:0] _RANDOM_MEM;	// @[RocketCore.scala:1254:15]
     `endif // RANDOMIZE_MEM_INIT
-    initial begin	// @[RocketCore.scala:1253:15]
-      `INIT_RANDOM_PROLOG_	// @[RocketCore.scala:1253:15]
-      `ifdef RANDOMIZE_MEM_INIT	// @[RocketCore.scala:1253:15]
+    initial begin	// @[RocketCore.scala:1254:15]
+      `INIT_RANDOM_PROLOG_	// @[RocketCore.scala:1254:15]
+      `ifdef RANDOMIZE_MEM_INIT	// @[RocketCore.scala:1254:15]
         for (initvar = 0; initvar < 31; initvar = initvar + 1) begin
           _RANDOM_MEM = {{`RANDOM}, {`RANDOM}};
           Memory[initvar] = _RANDOM_MEM[63:0];
-        end	// @[RocketCore.scala:1253:15]
+        end	// @[RocketCore.scala:1254:15]
       `endif // RANDOMIZE_MEM_INIT
     end // initial
   `endif // not def SYNTHESIS
-  assign R0_data = R0_en ? Memory[R0_addr] : 64'bx;	// @[RocketCore.scala:1253:15]
-  assign R1_data = R1_en ? Memory[R1_addr] : 64'bx;	// @[RocketCore.scala:1253:15]
+  assign R0_data = R0_en ? Memory[R0_addr] : 64'bx;	// @[RocketCore.scala:1254:15]
+  assign R1_data = R1_en ? Memory[R1_addr] : 64'bx;	// @[RocketCore.scala:1254:15]
 endmodule
 

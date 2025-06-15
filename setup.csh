@@ -16,9 +16,14 @@
     setenv RLM_LICENSE 5053@192.168.99.15
     setenv LM_LICENSE_FILE /home/tools/vivado/license.lic
 
-    setenv CASE_NAME vcom_little_ddr_att_12
-    setenv CASE_PATH /home/youdean/workspace/$CASE_NAME
-    setenv SRC_PATH /home/youdean/workspace/$CASE_NAME/gen-collateral
-    setenv MODIFIED_PATH /home/youdean/workspace/$CASE_NAME/modified_rtl
-    setenv XRAM_PATH /home/youdean/workspace/$CASE_NAME/xaxi4_slave_emb
+    # 自动获取当前脚本所在目录和名称
+    set script_dir = `dirname $0`
+    set script_dir = `cd $script_dir && pwd`
+    set script_name = `basename $script_dir`
+
+    setenv CASE_NAME $script_name
+    setenv CASE_PATH $script_dir
+    setenv SRC_PATH $CASE_PATH/gen-collateral
+    setenv MODIFIED_PATH $CASE_PATH/modified_v
+    setenv XRAM_PATH $CASE_PATH/xaxi4_slave_emb
     setenv XAXI_RTL_HOME /home/youdean

@@ -283,7 +283,7 @@ module TLToAXI4(
     if (auto_out_b_valid & ~x1_b_ready)	// @[ToAXI4.scala:213:{25,28}, :221:33]
       b_delay <= b_delay + 3'h1;	// @[ToAXI4.scala:176:17, :212:24, :214:28]
     else	// @[ToAXI4.scala:213:25]
-      b_delay <= 3'h0;	// @[Bundles.scala:259:74, ToAXI4.scala:212:24]
+      b_delay <= 3'h0;	// @[Bundles.scala:260:74, ToAXI4.scala:212:24]
     if (r_first)	// @[ToAXI4.scala:227:28]
       r_denied_r <= &auto_out_r_bits_resp;	// @[Reg.scala:19:16, ToAXI4.scala:229:39]
   end // always @(posedge)

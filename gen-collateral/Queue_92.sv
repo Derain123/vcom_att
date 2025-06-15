@@ -81,10 +81,11 @@ module Queue_92(
   output [1:0]  io_deq_bits_param,
   output [3:0]  io_deq_bits_size,
                 io_deq_bits_source,
-  output [31:0] io_deq_bits_address
+  output [31:0] io_deq_bits_address,
+  output        io_deq_bits_hit
 );
 
-  wire [117:0] _ram_ext_R0_data;	// @[Decoupled.scala:273:95]
+  wire [118:0] _ram_ext_R0_data;	// @[Decoupled.scala:273:95]
   reg          enq_ptr_value;	// @[Counter.scala:61:40]
   reg          deq_ptr_value;	// @[Counter.scala:61:40]
   reg          maybe_full;	// @[Decoupled.scala:276:27]
@@ -128,14 +129,14 @@ module Queue_92(
       `FIRRTL_AFTER_INITIAL
     `endif // FIRRTL_AFTER_INITIAL
   `endif // not def SYNTHESIS
-  ram_combMem_23 ram_ext (	// @[Decoupled.scala:273:95]
+  ram_combMem_24 ram_ext (	// @[Decoupled.scala:273:95]
     .R0_addr (deq_ptr_value),	// @[Counter.scala:61:40]
     .R0_en   (1'h1),
     .R0_clk  (clock),
     .W0_addr (enq_ptr_value),	// @[Counter.scala:61:40]
     .W0_en   (do_enq),	// @[Decoupled.scala:51:35]
     .W0_clk  (clock),
-    .W0_data ({73'hFF, io_enq_bits_address, 4'h0, io_enq_bits_size, io_enq_bits_param, 3'h6}),	// @[Decoupled.scala:273:95]
+    .W0_data ({74'hFF, io_enq_bits_address, 4'h0, io_enq_bits_size, io_enq_bits_param, 3'h6}),	// @[Decoupled.scala:273:95]
     .R0_data (_ram_ext_R0_data)
   );
   assign io_enq_ready = ~full;	// @[Decoupled.scala:279:24, :303:19]
@@ -144,5 +145,6 @@ module Queue_92(
   assign io_deq_bits_size = _ram_ext_R0_data[8:5];	// @[Decoupled.scala:273:95]
   assign io_deq_bits_source = _ram_ext_R0_data[12:9];	// @[Decoupled.scala:273:95]
   assign io_deq_bits_address = _ram_ext_R0_data[44:13];	// @[Decoupled.scala:273:95]
+  assign io_deq_bits_hit = _ram_ext_R0_data[118];	// @[Decoupled.scala:273:95]
 endmodule
 

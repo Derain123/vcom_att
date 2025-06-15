@@ -540,7 +540,7 @@ module PeripheryBus(
     .auto_fragmenter_out_d_bits_opcode  ({2'h0, out_front_bits_read}),	// @[PeripheryBus.scala:50:30, RegisterRouter.scala:72:36, :98:19]
     .auto_fragmenter_out_d_bits_size    (_coupler_to_bootaddressreg_auto_fragmenter_out_a_bits_size),	// @[LazyModule.scala:489:27]
     .auto_fragmenter_out_d_bits_source  (_coupler_to_bootaddressreg_auto_fragmenter_out_a_bits_source),	// @[LazyModule.scala:489:27]
-    .auto_fragmenter_out_d_bits_data    (_out_out_bits_data_T_1 ? bootAddrReg : 64'h0),	// @[BootAddrReg.scala:32:34, Bundles.scala:259:74, RegisterRouter.scala:83:24]
+    .auto_fragmenter_out_d_bits_data    (_out_out_bits_data_T_1 ? bootAddrReg : 64'h0),	// @[BootAddrReg.scala:32:34, Bundles.scala:260:74, RegisterRouter.scala:83:24]
     .auto_tl_in_a_valid                 (_out_xbar_auto_out_0_a_valid),	// @[PeripheryBus.scala:50:30]
     .auto_tl_in_a_bits_opcode           (_out_xbar_auto_out_0_a_bits_opcode),	// @[PeripheryBus.scala:50:30]
     .auto_tl_in_a_bits_size             (_out_xbar_auto_out_0_a_bits_size),	// @[PeripheryBus.scala:50:30]

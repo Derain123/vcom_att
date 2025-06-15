@@ -161,11 +161,11 @@ module TLSPI(
   wire              out_woready_8 = _out_wofireMux_T_2 & auto_control_xing_in_a_bits_address[6:3] == 4'hA & _out_out_bits_data_WIRE_14;	// @[Cat.scala:33:92, OneHot.scala:57:35, RegisterRouter.scala:83:24]
   wire              out_woready_10 = _out_wofireMux_T_2 & auto_control_xing_in_a_bits_address[6:3] == 4'hE & _out_out_bits_data_WIRE_14;	// @[Cat.scala:33:92, OneHot.scala:57:35, RegisterRouter.scala:83:24]
   wire [15:0]       _GEN = {{1'h1}, {_out_out_bits_data_WIRE_14}, {1'h1}, {1'h1}, {1'h1}, {_out_out_bits_data_WIRE_14}, {_out_out_bits_data_WIRE_14}, {_out_out_bits_data_WIRE_14}, {_out_out_bits_data_WIRE_14}, {1'h1}, {_out_out_bits_data_WIRE_14}, {1'h1}, {_out_out_bits_data_WIRE_14}, {_out_out_bits_data_WIRE_14}, {1'h1}, {_out_out_bits_data_WIRE_14}};	// @[Buffer.scala:47:20, MuxLiteral.scala:49:10, RegisterRouter.scala:83:24]
-  wire [15:0][63:0] _GEN_0 = {{64'h0}, {{30'h0, _fifo_io_ip_rxwm, _fifo_io_ip_txwm, 30'h0, ie_rxwm, ie_txwm}}, {64'h0}, {64'h0}, {64'h0}, {{28'h0, ctrl_wm_rx, 28'h0, ctrl_wm_tx}}, {{~_fifo_io_rx_valid, 23'h0, _fifo_io_rx_bits, ~_fifo_io_tx_ready, 31'h0}}, {{44'h0, ctrl_fmt_len, 12'h0, ctrl_fmt_iodir, ctrl_fmt_endian, ctrl_fmt_proto}}, {{27'h0, ctrl_sampledel_sd, 20'h0, ctrl_extradel_coarse}}, {64'h0}, {{8'h0, ctrl_dla_interxfr, 8'h0, ctrl_dla_intercs, 8'h0, ctrl_dla_sckcs, 8'h0, ctrl_dla_cssck}}, {64'h0}, {{62'h0, ctrl_cs_mode}}, {{31'h0, ctrl_cs_dflt_0, 31'h0, ctrl_cs_id}}, {64'h0}, {{30'h0, ctrl_sck_pol, ctrl_sck_pha, 20'h0, ctrl_sck_div}}};	// @[Bundles.scala:259:74, Cat.scala:33:92, MuxLiteral.scala:49:{10,48}, RegMapFIFO.scala:24:9, :45:21, RegisterRouter.scala:83:24, TLSPI.scala:67:17, :68:20, :81:15]
+  wire [15:0][63:0] _GEN_0 = {{64'h0}, {{30'h0, _fifo_io_ip_rxwm, _fifo_io_ip_txwm, 30'h0, ie_rxwm, ie_txwm}}, {64'h0}, {64'h0}, {64'h0}, {{28'h0, ctrl_wm_rx, 28'h0, ctrl_wm_tx}}, {{~_fifo_io_rx_valid, 23'h0, _fifo_io_rx_bits, ~_fifo_io_tx_ready, 31'h0}}, {{44'h0, ctrl_fmt_len, 12'h0, ctrl_fmt_iodir, ctrl_fmt_endian, ctrl_fmt_proto}}, {{27'h0, ctrl_sampledel_sd, 20'h0, ctrl_extradel_coarse}}, {64'h0}, {{8'h0, ctrl_dla_interxfr, 8'h0, ctrl_dla_intercs, 8'h0, ctrl_dla_sckcs, 8'h0, ctrl_dla_cssck}}, {64'h0}, {{62'h0, ctrl_cs_mode}}, {{31'h0, ctrl_cs_dflt_0, 31'h0, ctrl_cs_id}}, {64'h0}, {{30'h0, ctrl_sck_pol, ctrl_sck_pha, 20'h0, ctrl_sck_div}}};	// @[Bundles.scala:260:74, Cat.scala:33:92, MuxLiteral.scala:49:{10,48}, RegMapFIFO.scala:24:9, :45:21, RegisterRouter.scala:83:24, TLSPI.scala:67:17, :68:20, :81:15]
   wire [11:0]       _out_womask_T_21 = {{4{auto_control_xing_in_a_bits_mask[1]}}, {8{auto_control_xing_in_a_bits_mask[0]}}};	// @[Bitwise.scala:28:17, :77:12, RegisterRouter.scala:83:24]
   always @(posedge clock) begin
     if (reset) begin
-      ctrl_fmt_proto <= 2'h0;	// @[Bundles.scala:259:74, TLSPI.scala:67:17]
+      ctrl_fmt_proto <= 2'h0;	// @[Bundles.scala:260:74, TLSPI.scala:67:17]
       ctrl_fmt_endian <= 1'h0;	// @[TLSPI.scala:67:17]
       ctrl_fmt_iodir <= 1'h0;	// @[TLSPI.scala:67:17]
       ctrl_fmt_len <= 4'h8;	// @[SPIBundle.scala:86:18, TLSPI.scala:67:17]
@@ -174,11 +174,11 @@ module TLSPI(
       ctrl_sck_pha <= 1'h0;	// @[TLSPI.scala:67:17]
       ctrl_cs_id <= 1'h0;	// @[TLSPI.scala:67:17]
       ctrl_cs_dflt_0 <= 1'h1;	// @[Buffer.scala:47:20, TLSPI.scala:67:17]
-      ctrl_cs_mode <= 2'h0;	// @[Bundles.scala:259:74, TLSPI.scala:67:17]
+      ctrl_cs_mode <= 2'h0;	// @[Bundles.scala:260:74, TLSPI.scala:67:17]
       ctrl_dla_cssck <= 8'h1;	// @[SPIBundle.scala:93:20, TLSPI.scala:67:17]
       ctrl_dla_sckcs <= 8'h1;	// @[SPIBundle.scala:93:20, TLSPI.scala:67:17]
       ctrl_dla_intercs <= 8'h1;	// @[SPIBundle.scala:93:20, TLSPI.scala:67:17]
-      ctrl_dla_interxfr <= 8'h0;	// @[Bundles.scala:259:74, TLSPI.scala:67:17]
+      ctrl_dla_interxfr <= 8'h0;	// @[Bundles.scala:260:74, TLSPI.scala:67:17]
       ctrl_wm_tx <= 4'h0;	// @[RegisterRouter.scala:83:24, TLSPI.scala:67:17]
       ctrl_wm_rx <= 4'h0;	// @[RegisterRouter.scala:83:24, TLSPI.scala:67:17]
       ctrl_extradel_coarse <= 12'h0;	// @[RegisterRouter.scala:83:24, TLSPI.scala:67:17]
@@ -352,9 +352,9 @@ module TLSPI(
   );
   assign auto_control_xing_in_a_ready = auto_control_xing_in_d_ready;
   assign auto_control_xing_in_d_valid = auto_control_xing_in_a_valid;
-  assign auto_control_xing_in_d_bits_opcode = {2'h0, out_front_bits_read};	// @[Bundles.scala:259:74, RegisterRouter.scala:72:36, :98:19]
+  assign auto_control_xing_in_d_bits_opcode = {2'h0, out_front_bits_read};	// @[Bundles.scala:260:74, RegisterRouter.scala:72:36, :98:19]
   assign auto_control_xing_in_d_bits_size = auto_control_xing_in_a_bits_size;
   assign auto_control_xing_in_d_bits_source = auto_control_xing_in_a_bits_source;
-  assign auto_control_xing_in_d_bits_data = _GEN[auto_control_xing_in_a_bits_address[6:3]] ? _GEN_0[auto_control_xing_in_a_bits_address[6:3]] : 64'h0;	// @[Bundles.scala:259:74, Cat.scala:33:92, MuxLiteral.scala:49:10, RegisterRouter.scala:83:24]
+  assign auto_control_xing_in_d_bits_data = _GEN[auto_control_xing_in_a_bits_address[6:3]] ? _GEN_0[auto_control_xing_in_a_bits_address[6:3]] : 64'h0;	// @[Bundles.scala:260:74, Cat.scala:33:92, MuxLiteral.scala:49:10, RegisterRouter.scala:83:24]
 endmodule
 

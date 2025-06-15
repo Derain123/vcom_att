@@ -1,5 +1,5 @@
 vsyn:
-	vsyn -f ${CASE_PATH}/filelistall.f -top VCU118FPGATestHarness -o VCU118FPGATestHarness.vm -area-report area.log -l vsyn.log
+	vsyn -f ${CASE_PATH}/filelist_new.f -top VCU118FPGATestHarness -o VCU118FPGATestHarness.vm -area-report area.log -l vsyn.log
 vsyn_ff:
 	xjob run -c 4 -m 10g make vsyn
 vsyn_clean:

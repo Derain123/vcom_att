@@ -129,6 +129,7 @@ module TilePRCIDomain(
   wire [3:0]  _buffer_auto_in_b_bits_size;	// @[Buffer.scala:69:28]
   wire [3:0]  _buffer_auto_in_b_bits_source;	// @[Buffer.scala:69:28]
   wire [31:0] _buffer_auto_in_b_bits_address;	// @[Buffer.scala:69:28]
+  wire        _buffer_auto_in_b_bits_hit;	// @[Buffer.scala:69:28]
   wire        _buffer_auto_in_c_ready;	// @[Buffer.scala:69:28]
   wire        _buffer_auto_in_d_valid;	// @[Buffer.scala:69:28]
   wire [2:0]  _buffer_auto_in_d_bits_opcode;	// @[Buffer.scala:69:28]
@@ -170,6 +171,7 @@ module TilePRCIDomain(
     .auto_buffer_out_b_bits_size    (_buffer_auto_in_b_bits_size),	// @[Buffer.scala:69:28]
     .auto_buffer_out_b_bits_source  (_buffer_auto_in_b_bits_source),	// @[Buffer.scala:69:28]
     .auto_buffer_out_b_bits_address (_buffer_auto_in_b_bits_address),	// @[Buffer.scala:69:28]
+    .auto_buffer_out_b_bits_hit     (_buffer_auto_in_b_bits_hit),	// @[Buffer.scala:69:28]
     .auto_buffer_out_c_ready        (_buffer_auto_in_c_ready),	// @[Buffer.scala:69:28]
     .auto_buffer_out_d_valid        (_buffer_auto_in_d_valid),	// @[Buffer.scala:69:28]
     .auto_buffer_out_d_bits_opcode  (_buffer_auto_in_d_bits_opcode),	// @[Buffer.scala:69:28]
@@ -254,6 +256,7 @@ module TilePRCIDomain(
     .auto_in_b_bits_size     (_buffer_auto_in_b_bits_size),
     .auto_in_b_bits_source   (_buffer_auto_in_b_bits_source),
     .auto_in_b_bits_address  (_buffer_auto_in_b_bits_address),
+    .auto_in_b_bits_hit      (_buffer_auto_in_b_bits_hit),
     .auto_in_c_ready         (_buffer_auto_in_c_ready),
     .auto_in_d_valid         (_buffer_auto_in_d_valid),
     .auto_in_d_bits_opcode   (_buffer_auto_in_d_bits_opcode),

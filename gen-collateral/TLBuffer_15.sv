@@ -113,7 +113,8 @@ module TLBuffer_15(
   output [3:0]  auto_in_b_bits_size,
                 auto_in_b_bits_source,
   output [31:0] auto_in_b_bits_address,
-  output        auto_in_c_ready,
+  output        auto_in_b_bits_hit,
+                auto_in_c_ready,
                 auto_in_d_valid,
   output [2:0]  auto_in_d_bits_opcode,
   output [1:0]  auto_in_d_bits_param,
@@ -206,7 +207,8 @@ module TLBuffer_15(
     .io_deq_bits_param   (auto_in_b_bits_param),
     .io_deq_bits_size    (auto_in_b_bits_size),
     .io_deq_bits_source  (auto_in_b_bits_source),
-    .io_deq_bits_address (auto_in_b_bits_address)
+    .io_deq_bits_address (auto_in_b_bits_address),
+    .io_deq_bits_hit     (auto_in_b_bits_hit)
   );
   Queue_93 x1_c_q (	// @[Decoupled.scala:375:21]
     .clock               (clock),

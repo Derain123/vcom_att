@@ -77,7 +77,8 @@ module NonBlockingDCache(
   input  [3:0]  auto_out_b_bits_size,
   input  [2:0]  auto_out_b_bits_source,
   input  [31:0] auto_out_b_bits_address,
-  input         auto_out_c_ready,
+  input         auto_out_b_bits_hit,
+                auto_out_c_ready,
                 auto_out_d_valid,
   input  [2:0]  auto_out_d_bits_opcode,
   input  [1:0]  auto_out_d_bits_param,
@@ -224,9 +225,7 @@ module NonBlockingDCache(
                 io_cpu_s2_xcpt_ae_ld,
                 io_cpu_s2_xcpt_ae_st,
                 io_cpu_ordered,
-                io_cpu_perf_acquire,
                 io_cpu_perf_release,
-                io_cpu_perf_tlbMiss,
                 io_ptw_req_valid,
   output [26:0] io_ptw_req_bits_bits_addr,
   output        io_ptw_req_bits_bits_need_gpa,
@@ -234,17 +233,17 @@ module NonBlockingDCache(
                 io_ptw_req_bits_bits_stage2
 );
 
-  wire             _io_cpu_s2_xcpt_ma_st_output;	// @[NBDcache.scala:1041:24]
-  wire             _io_cpu_s2_xcpt_ma_ld_output;	// @[NBDcache.scala:1041:24]
-  wire             _io_cpu_s2_xcpt_ae_st_output;	// @[NBDcache.scala:1041:24]
-  wire             _io_cpu_s2_xcpt_ae_ld_output;	// @[NBDcache.scala:1041:24]
-  wire             _io_cpu_s2_xcpt_gf_st_output;	// @[NBDcache.scala:1041:24]
-  wire             _io_cpu_s2_xcpt_gf_ld_output;	// @[NBDcache.scala:1041:24]
-  wire             _io_cpu_s2_xcpt_pf_st_output;	// @[NBDcache.scala:1041:24]
-  wire             _io_cpu_s2_xcpt_pf_ld_output;	// @[NBDcache.scala:1041:24]
-  wire             _io_cpu_s2_nack_output;	// @[NBDcache.scala:1032:30]
-  wire             s2_valid_masked;	// @[NBDcache.scala:995:31]
-  wire             _GEN;	// @[NBDcache.scala:903:22, :991:{22,43}]
+  wire             _io_cpu_s2_xcpt_ma_st_output;	// @[NBDcache.scala:1047:24]
+  wire             _io_cpu_s2_xcpt_ma_ld_output;	// @[NBDcache.scala:1047:24]
+  wire             _io_cpu_s2_xcpt_ae_st_output;	// @[NBDcache.scala:1047:24]
+  wire             _io_cpu_s2_xcpt_ae_ld_output;	// @[NBDcache.scala:1047:24]
+  wire             _io_cpu_s2_xcpt_gf_st_output;	// @[NBDcache.scala:1047:24]
+  wire             _io_cpu_s2_xcpt_gf_ld_output;	// @[NBDcache.scala:1047:24]
+  wire             _io_cpu_s2_xcpt_pf_st_output;	// @[NBDcache.scala:1047:24]
+  wire             _io_cpu_s2_xcpt_pf_ld_output;	// @[NBDcache.scala:1047:24]
+  wire             _io_cpu_s2_nack_output;	// @[NBDcache.scala:1038:30]
+  wire             s2_valid_masked;	// @[NBDcache.scala:1001:31]
+  wire             _GEN;	// @[NBDcache.scala:903:22, :997:{22,43}]
   wire             tl_out_d_ready;	// @[NBDcache.scala:935:45]
   reg  [3:0]       s2_tag_match_way;	// @[Reg.scala:19:16]
   wire             _wbArb_io_in_0_ready;	// @[NBDcache.scala:950:21]
@@ -320,7 +319,6 @@ module NonBlockingDCache(
   wire             _dtlb_io_resp_ae_st;	// @[NBDcache.scala:739:20]
   wire             _dtlb_io_resp_ma_ld;	// @[NBDcache.scala:739:20]
   wire             _dtlb_io_resp_ma_st;	// @[NBDcache.scala:739:20]
-  wire             _dtlb_io_ptw_req_valid;	// @[NBDcache.scala:739:20]
   wire             _mshrs_io_req_ready;	// @[NBDcache.scala:712:21]
   wire             _mshrs_io_resp_valid;	// @[NBDcache.scala:712:21]
   wire [39:0]      _mshrs_io_resp_bits_addr;	// @[NBDcache.scala:712:21]
@@ -335,9 +333,6 @@ module NonBlockingDCache(
   wire             _mshrs_io_resp_bits_has_data;	// @[NBDcache.scala:712:21]
   wire [63:0]      _mshrs_io_resp_bits_store_data;	// @[NBDcache.scala:712:21]
   wire             _mshrs_io_secondary_miss;	// @[NBDcache.scala:712:21]
-  wire             _mshrs_io_mem_acquire_valid;	// @[NBDcache.scala:712:21]
-  wire [2:0]       _mshrs_io_mem_acquire_bits_opcode;	// @[NBDcache.scala:712:21]
-  wire [3:0]       _mshrs_io_mem_acquire_bits_size;	// @[NBDcache.scala:712:21]
   wire [3:0]       _mshrs_io_refill_way_en;	// @[NBDcache.scala:712:21]
   wire [9:0]       _mshrs_io_refill_addr;	// @[NBDcache.scala:712:21]
   wire             _mshrs_io_meta_read_valid;	// @[NBDcache.scala:712:21]
@@ -409,7 +404,7 @@ module NonBlockingDCache(
   reg              s1_clk_en;	// @[NBDcache.scala:719:22]
   wire             s1_sfence = s1_req_cmd == 5'h14;	// @[NBDcache.scala:716:19, :720:30]
   reg              s2_valid_REG;	// @[NBDcache.scala:722:25]
-  wire             s2_valid = s2_valid_REG & {_io_cpu_s2_xcpt_ma_ld_output, _io_cpu_s2_xcpt_ma_st_output, _io_cpu_s2_xcpt_pf_ld_output, _io_cpu_s2_xcpt_pf_st_output, _io_cpu_s2_xcpt_gf_ld_output, _io_cpu_s2_xcpt_gf_st_output, _io_cpu_s2_xcpt_ae_ld_output, _io_cpu_s2_xcpt_ae_st_output} == 8'h0;	// @[NBDcache.scala:722:{25,66,85,92}, :1041:24]
+  wire             s2_valid = s2_valid_REG & {_io_cpu_s2_xcpt_ma_ld_output, _io_cpu_s2_xcpt_ma_st_output, _io_cpu_s2_xcpt_pf_ld_output, _io_cpu_s2_xcpt_pf_st_output, _io_cpu_s2_xcpt_gf_ld_output, _io_cpu_s2_xcpt_gf_st_output, _io_cpu_s2_xcpt_ae_ld_output, _io_cpu_s2_xcpt_ae_st_output} == 8'h0;	// @[NBDcache.scala:722:{25,66,85,92}, :1047:24]
   reg  [39:0]      s2_req_addr;	// @[NBDcache.scala:723:19]
   reg  [6:0]       s2_req_tag;	// @[NBDcache.scala:723:19]
   reg  [4:0]       s2_req_cmd;	// @[NBDcache.scala:723:19]
@@ -466,7 +461,7 @@ module NonBlockingDCache(
   reg  [33:0]      lrsc_addr;	// @[NBDcache.scala:846:22]
   wire             s2_lrsc_addr_match = (|(lrsc_count[6:2])) & lrsc_addr == s2_req_addr[39:6];	// @[NBDcache.scala:723:19, :824:48, :844:27, :845:31, :846:22, :848:{39,52}]
   wire             s2_sc_fail = s2_sc & ~s2_lrsc_addr_match;	// @[Consts.scala:86:66, NBDcache.scala:848:39, :849:{26,29}]
-  wire             _cache_resp_valid_T = s2_valid_masked & s2_hit;	// @[NBDcache.scala:841:50, :851:25, :995:31]
+  wire             _cache_resp_valid_T = s2_valid_masked & s2_hit;	// @[NBDcache.scala:841:50, :851:25, :1001:31]
   reg  [63:0]      regs_0;	// @[NBDcache.scala:866:19]
   reg  [63:0]      regs_1_0;	// @[NBDcache.scala:866:19]
   reg  [63:0]      regs_2_0;	// @[NBDcache.scala:866:19]
@@ -498,31 +493,32 @@ module NonBlockingDCache(
   wire             out_2_valid = idle ? _sink_ACancel_earlyValid_T : state_0 & _wb_io_release_valid | state_1 & _prober_io_rep_valid;	// @[Arbiter.scala:89:28, :108:36, :117:26, :126:29, Mux.scala:27:73, NBDcache.scala:710:18, :711:22]
   wire [3:0]       out_2_bits_size = (muxStateEarly_0 ? 4'h6 : 4'h0) | (muxStateEarly_1 ? _prober_io_rep_bits_size : 4'h0);	// @[Arbiter.scala:118:30, Mux.scala:27:73, NBDcache.scala:711:22, ReadyValidCancel.scala:68:19]
   wire [2:0]       out_2_bits_opcode = (muxStateEarly_0 ? _wb_io_release_bits_opcode : 3'h0) | {muxStateEarly_1, 2'h0};	// @[Arbiter.scala:118:30, Mux.scala:27:73, NBDcache.scala:710:18]
-  reg              s4_valid;	// @[NBDcache.scala:960:25]
+  wire             l2_hit = auto_out_b_bits_hit;	// @[NBDcache.scala:960:20]
+  reg              s4_valid;	// @[NBDcache.scala:966:25]
   reg  [39:0]      s4_req_addr;	// @[Reg.scala:19:16]
   reg  [4:0]       s4_req_cmd;	// @[Reg.scala:19:16]
   reg  [63:0]      s4_req_data;	// @[Reg.scala:19:16]
-  reg  [63:0]      s2_store_bypass_data;	// @[NBDcache.scala:967:33]
-  reg              s2_store_bypass;	// @[NBDcache.scala:968:28]
-  wire [63:0]      s2_data_word = s2_store_bypass ? s2_store_bypass_data : s2_data_muxed;	// @[Mux.scala:27:73, NBDcache.scala:967:33, :968:28, :979:25]
+  reg  [63:0]      s2_store_bypass_data;	// @[NBDcache.scala:973:33]
+  reg              s2_store_bypass;	// @[NBDcache.scala:974:28]
+  wire [63:0]      s2_data_word = s2_store_bypass ? s2_store_bypass_data : s2_data_muxed;	// @[Mux.scala:27:73, NBDcache.scala:973:33, :974:28, :985:25]
   wire [1:0]       _amoalu_io_mask_T = {s2_req_addr[0] | (|s2_req_size), ~(s2_req_addr[0])};	// @[AMOALU.scala:18:{27,42,53}, :19:22, Cat.scala:33:92, NBDcache.scala:723:19]
   wire [3:0]       _amoalu_io_mask_T_1 = {(s2_req_addr[1] ? _amoalu_io_mask_T : 2'h0) | {2{s2_req_size[1]}}, s2_req_addr[1] ? 2'h0 : _amoalu_io_mask_T};	// @[AMOALU.scala:18:{22,27,42,47,53}, :19:22, Cat.scala:33:92, NBDcache.scala:723:19]
-  wire             s1_nack = _dtlb_io_req_valid_T_2 & _dtlb_io_resp_miss | _io_cpu_s2_nack_output | s1_req_addr[9:6] == _prober_io_meta_write_bits_idx & ~_prober_io_req_ready;	// @[NBDcache.scala:711:22, :716:19, :739:20, :742:52, :988:{35,74}, :989:{28,44,78,81}, :1032:30]
+  wire             s1_nack = _dtlb_io_req_valid_T_2 & _dtlb_io_resp_miss | _io_cpu_s2_nack_output | s1_req_addr[9:6] == _prober_io_meta_write_bits_idx & ~_prober_io_req_ready;	// @[NBDcache.scala:711:22, :716:19, :739:20, :742:52, :994:{35,74}, :995:{28,44,78,81}, :1038:30]
   reg              s2_nack_hit;	// @[Reg.scala:19:16]
-  assign _GEN = ~s2_nack_hit & s2_valid_masked & ~s2_hit & (s2_req_cmd == 5'h2 | _mshrs_io_req_valid_T_3 | _cache_resp_bits_has_data_T | _cache_resp_bits_has_data_T_1 | s2_lr | s2_sc | _cache_resp_bits_has_data_T_7 | _cache_resp_bits_has_data_T_8 | _cache_resp_bits_has_data_T_9 | _cache_resp_bits_has_data_T_10 | _cache_resp_bits_has_data_T_14 | _cache_resp_bits_has_data_T_15 | _cache_resp_bits_has_data_T_16 | _cache_resp_bits_has_data_T_17 | _cache_resp_bits_has_data_T_18 | _T_161 | _T_162);	// @[Consts.scala:84:35, :86:{32,49,66}, :87:{54,71}, NBDcache.scala:723:19, :841:50, :903:{22,44,101}, :991:{22,43}, :995:31, Reg.scala:19:16, package.scala:16:47]
-  wire             s2_nack_miss = ~s2_hit & ~_mshrs_io_req_ready;	// @[NBDcache.scala:712:21, :841:50, :903:44, :993:{30,33}]
-  wire             s2_nack = s2_nack_hit | s2_hit & _mshrs_io_secondary_miss | s2_nack_miss;	// @[NBDcache.scala:712:21, :841:50, :992:31, :993:30, :994:47, Reg.scala:19:16]
-  assign s2_valid_masked = s2_valid & ~s2_nack;	// @[NBDcache.scala:722:66, :994:47, :995:{31,34}]
-  reg              block_miss;	// @[NBDcache.scala:1003:27]
-  wire             _GEN_1 = block_miss | s1_nack | ~_readArb_io_in_3_ready | ~_metaReadArb_io_in_4_ready | ~_dtlb_io_req_ready & ~io_cpu_req_bits_phys;	// @[NBDcache.scala:714:20, :739:20, :749:{9,28,31,54,73}, :794:27, :801:23, :814:{9,38,57}, :820:{9,34,53}, :988:74, :1003:27, :1005:32, :1006:22]
+  assign _GEN = ~s2_nack_hit & s2_valid_masked & ~s2_hit & (s2_req_cmd == 5'h2 | _mshrs_io_req_valid_T_3 | _cache_resp_bits_has_data_T | _cache_resp_bits_has_data_T_1 | s2_lr | s2_sc | _cache_resp_bits_has_data_T_7 | _cache_resp_bits_has_data_T_8 | _cache_resp_bits_has_data_T_9 | _cache_resp_bits_has_data_T_10 | _cache_resp_bits_has_data_T_14 | _cache_resp_bits_has_data_T_15 | _cache_resp_bits_has_data_T_16 | _cache_resp_bits_has_data_T_17 | _cache_resp_bits_has_data_T_18 | _T_161 | _T_162);	// @[Consts.scala:84:35, :86:{32,49,66}, :87:{54,71}, NBDcache.scala:723:19, :841:50, :903:{22,44,101}, :997:{22,43}, :1001:31, Reg.scala:19:16, package.scala:16:47]
+  wire             s2_nack_miss = ~s2_hit & ~_mshrs_io_req_ready;	// @[NBDcache.scala:712:21, :841:50, :903:44, :999:{30,33}]
+  wire             s2_nack = s2_nack_hit | s2_hit & _mshrs_io_secondary_miss | s2_nack_miss;	// @[NBDcache.scala:712:21, :841:50, :998:31, :999:30, :1000:47, Reg.scala:19:16]
+  assign s2_valid_masked = s2_valid & ~s2_nack;	// @[NBDcache.scala:722:66, :1000:47, :1001:{31,34}]
+  reg              block_miss;	// @[NBDcache.scala:1009:27]
+  wire             _GEN_1 = block_miss | s1_nack | ~_readArb_io_in_3_ready | ~_metaReadArb_io_in_4_ready | ~_dtlb_io_req_ready & ~io_cpu_req_bits_phys;	// @[NBDcache.scala:714:20, :739:20, :749:{9,28,31,54,73}, :794:27, :801:23, :814:{9,38,57}, :820:{9,34,53}, :994:74, :1009:27, :1011:32, :1012:22]
   wire             _io_cpu_resp_bits_data_word_bypass_T_1 = s2_req_size == 2'h2;	// @[AMOALU.scala:43:26, NBDcache.scala:723:19]
-  wire [31:0]      cache_resp_bits_data_shifted = s2_req_addr[2] ? s2_data_word[63:32] : s2_data_word[31:0];	// @[AMOALU.scala:18:27, :40:{24,37,55}, NBDcache.scala:723:19, :979:25]
+  wire [31:0]      cache_resp_bits_data_shifted = s2_req_addr[2] ? s2_data_word[63:32] : s2_data_word[31:0];	// @[AMOALU.scala:18:27, :40:{24,37,55}, NBDcache.scala:723:19, :985:25]
   wire [15:0]      cache_resp_bits_data_shifted_1 = s2_req_addr[1] ? cache_resp_bits_data_shifted[31:16] : cache_resp_bits_data_shifted[15:0];	// @[AMOALU.scala:18:27, :40:{24,37,55}, NBDcache.scala:723:19]
   wire [7:0]       cache_resp_bits_data_zeroed_2 = s2_sc ? 8'h0 : s2_req_addr[0] ? cache_resp_bits_data_shifted_1[15:8] : cache_resp_bits_data_shifted_1[7:0];	// @[AMOALU.scala:18:27, :40:{24,37,55}, :42:23, Consts.scala:86:66, NBDcache.scala:723:19]
-  reg              mshrs_io_resp_ready_REG;	// @[NBDcache.scala:1030:33]
-  assign _io_cpu_s2_nack_output = s2_valid & s2_nack;	// @[NBDcache.scala:722:66, :994:47, :1032:30]
-  wire [31:0]      io_cpu_resp_bits_data_word_bypass_shifted = s2_req_addr[2] ? s2_data_word[63:32] : s2_data_word[31:0];	// @[AMOALU.scala:18:27, :40:{24,37,55}, NBDcache.scala:723:19, :979:25]
-  reg              io_cpu_s2_xcpt_REG;	// @[NBDcache.scala:1041:32]
+  reg              mshrs_io_resp_ready_REG;	// @[NBDcache.scala:1036:33]
+  assign _io_cpu_s2_nack_output = s2_valid & s2_nack;	// @[NBDcache.scala:722:66, :1000:47, :1038:30]
+  wire [31:0]      io_cpu_resp_bits_data_word_bypass_shifted = s2_req_addr[2] ? s2_data_word[63:32] : s2_data_word[31:0];	// @[AMOALU.scala:18:27, :40:{24,37,55}, NBDcache.scala:723:19, :985:25]
+  reg              io_cpu_s2_xcpt_REG;	// @[NBDcache.scala:1047:32]
   reg              io_cpu_s2_xcpt_r_pf_ld;	// @[Reg.scala:19:16]
   reg              io_cpu_s2_xcpt_r_pf_st;	// @[Reg.scala:19:16]
   reg              io_cpu_s2_xcpt_r_gf_ld;	// @[Reg.scala:19:16]
@@ -531,17 +527,14 @@ module NonBlockingDCache(
   reg              io_cpu_s2_xcpt_r_ae_st;	// @[Reg.scala:19:16]
   reg              io_cpu_s2_xcpt_r_ma_ld;	// @[Reg.scala:19:16]
   reg              io_cpu_s2_xcpt_r_ma_st;	// @[Reg.scala:19:16]
-  assign _io_cpu_s2_xcpt_pf_ld_output = io_cpu_s2_xcpt_REG & io_cpu_s2_xcpt_r_pf_ld;	// @[NBDcache.scala:1041:{24,32}, Reg.scala:19:16]
-  assign _io_cpu_s2_xcpt_pf_st_output = io_cpu_s2_xcpt_REG & io_cpu_s2_xcpt_r_pf_st;	// @[NBDcache.scala:1041:{24,32}, Reg.scala:19:16]
-  assign _io_cpu_s2_xcpt_gf_ld_output = io_cpu_s2_xcpt_REG & io_cpu_s2_xcpt_r_gf_ld;	// @[NBDcache.scala:1041:{24,32}, Reg.scala:19:16]
-  assign _io_cpu_s2_xcpt_gf_st_output = io_cpu_s2_xcpt_REG & io_cpu_s2_xcpt_r_gf_st;	// @[NBDcache.scala:1041:{24,32}, Reg.scala:19:16]
-  assign _io_cpu_s2_xcpt_ae_ld_output = io_cpu_s2_xcpt_REG & io_cpu_s2_xcpt_r_ae_ld;	// @[NBDcache.scala:1041:{24,32}, Reg.scala:19:16]
-  assign _io_cpu_s2_xcpt_ae_st_output = io_cpu_s2_xcpt_REG & io_cpu_s2_xcpt_r_ae_st;	// @[NBDcache.scala:1041:{24,32}, Reg.scala:19:16]
-  assign _io_cpu_s2_xcpt_ma_ld_output = io_cpu_s2_xcpt_REG & io_cpu_s2_xcpt_r_ma_ld;	// @[NBDcache.scala:1041:{24,32}, Reg.scala:19:16]
-  assign _io_cpu_s2_xcpt_ma_st_output = io_cpu_s2_xcpt_REG & io_cpu_s2_xcpt_r_ma_st;	// @[NBDcache.scala:1041:{24,32}, Reg.scala:19:16]
-  wire             _io_cpu_perf_acquire_T = auto_out_a_ready & _mshrs_io_mem_acquire_valid;	// @[Decoupled.scala:51:35, NBDcache.scala:712:21]
-  wire [26:0]      _io_cpu_perf_acquire_beats1_decode_T_1 = 27'hFFF << _mshrs_io_mem_acquire_bits_size;	// @[NBDcache.scala:712:21, package.scala:235:71]
-  reg  [8:0]       io_cpu_perf_acquire_counter;	// @[Edges.scala:229:27]
+  assign _io_cpu_s2_xcpt_pf_ld_output = io_cpu_s2_xcpt_REG & io_cpu_s2_xcpt_r_pf_ld;	// @[NBDcache.scala:1047:{24,32}, Reg.scala:19:16]
+  assign _io_cpu_s2_xcpt_pf_st_output = io_cpu_s2_xcpt_REG & io_cpu_s2_xcpt_r_pf_st;	// @[NBDcache.scala:1047:{24,32}, Reg.scala:19:16]
+  assign _io_cpu_s2_xcpt_gf_ld_output = io_cpu_s2_xcpt_REG & io_cpu_s2_xcpt_r_gf_ld;	// @[NBDcache.scala:1047:{24,32}, Reg.scala:19:16]
+  assign _io_cpu_s2_xcpt_gf_st_output = io_cpu_s2_xcpt_REG & io_cpu_s2_xcpt_r_gf_st;	// @[NBDcache.scala:1047:{24,32}, Reg.scala:19:16]
+  assign _io_cpu_s2_xcpt_ae_ld_output = io_cpu_s2_xcpt_REG & io_cpu_s2_xcpt_r_ae_ld;	// @[NBDcache.scala:1047:{24,32}, Reg.scala:19:16]
+  assign _io_cpu_s2_xcpt_ae_st_output = io_cpu_s2_xcpt_REG & io_cpu_s2_xcpt_r_ae_st;	// @[NBDcache.scala:1047:{24,32}, Reg.scala:19:16]
+  assign _io_cpu_s2_xcpt_ma_ld_output = io_cpu_s2_xcpt_REG & io_cpu_s2_xcpt_r_ma_ld;	// @[NBDcache.scala:1047:{24,32}, Reg.scala:19:16]
+  assign _io_cpu_s2_xcpt_ma_st_output = io_cpu_s2_xcpt_REG & io_cpu_s2_xcpt_r_ma_st;	// @[NBDcache.scala:1047:{24,32}, Reg.scala:19:16]
   wire             _io_cpu_perf_release_T = auto_out_c_ready & out_2_valid;	// @[Arbiter.scala:126:29, Decoupled.scala:51:35]
   wire [26:0]      _io_cpu_perf_release_beats1_decode_T_1 = 27'hFFF << out_2_bits_size;	// @[Mux.scala:27:73, package.scala:235:71]
   reg  [8:0]       io_cpu_perf_release_counter;	// @[Edges.scala:229:27]
@@ -552,11 +545,11 @@ module NonBlockingDCache(
   wire             _s1_tag_eq_way_WIRE_3 = _meta_io_resp_3_tag == _dtlb_io_resp_paddr[31:10];	// @[NBDcache.scala:739:20, :793:20, :833:{62,75}]
   wire             _T_74 = _cache_resp_valid_T | cache_resp_bits_replay;	// @[NBDcache.scala:724:47, :851:{25,35}]
   wire [1:0]       _GEN_2 = {_lfsr_prng_io_out_1, _lfsr_prng_io_out_0};	// @[OneHot.scala:57:35, PRNG.scala:91:22]
-  wire [36:0]      _GEN_3 = {8'h0, _dtlb_io_resp_paddr[31:3]};	// @[NBDcache.scala:739:20, :966:{32,47}]
-  wire             _T_184 = (s2_valid_masked | cache_resp_bits_replay) & ~s2_sc_fail & _GEN_3 == s2_req_addr[39:3] & (_T_161 | _T_162 | s2_sc | _cache_resp_bits_has_data_T_7 | _cache_resp_bits_has_data_T_8 | _cache_resp_bits_has_data_T_9 | _cache_resp_bits_has_data_T_10 | _cache_resp_bits_has_data_T_14 | _cache_resp_bits_has_data_T_15 | _cache_resp_bits_has_data_T_16 | _cache_resp_bits_has_data_T_17 | _cache_resp_bits_has_data_T_18);	// @[Consts.scala:86:{32,49,66,76}, NBDcache.scala:723:19, :724:47, :849:26, :882:59, :963:23, :966:{47,61,77}, :995:31, package.scala:16:47]
-  wire             _T_212 = s3_valid & _GEN_3 == s3_req_addr[39:3] & (s3_req_cmd == 5'h1 | s3_req_cmd == 5'h11 | s3_req_cmd == 5'h7 | s3_req_cmd == 5'h4 | s3_req_cmd == 5'h9 | s3_req_cmd == 5'hA | s3_req_cmd == 5'hB | s3_req_cmd == 5'h8 | s3_req_cmd == 5'hC | s3_req_cmd == 5'hD | s3_req_cmd == 5'hE | s3_req_cmd == 5'hF);	// @[Consts.scala:86:{32,49,66,76}, NBDcache.scala:728:25, :729:19, :966:{47,61,77}, package.scala:16:47]
-  wire             _T_242 = _T_184 | _T_212 | s4_valid & _GEN_3 == s4_req_addr[39:3] & (s4_req_cmd == 5'h1 | s4_req_cmd == 5'h11 | s4_req_cmd == 5'h7 | s4_req_cmd == 5'h4 | s4_req_cmd == 5'h9 | s4_req_cmd == 5'hA | s4_req_cmd == 5'hB | s4_req_cmd == 5'h8 | s4_req_cmd == 5'hC | s4_req_cmd == 5'hD | s4_req_cmd == 5'hE | s4_req_cmd == 5'hF);	// @[Consts.scala:86:{32,49,66,76}, NBDcache.scala:960:25, :966:{47,61,77}, :971:38, Reg.scala:19:16, package.scala:16:47]
-  wire             _mshrs_io_resp_ready_T = s1_valid | s1_replay;	// @[NBDcache.scala:715:25, :718:26, :990:49]
+  wire [36:0]      _GEN_3 = {8'h0, _dtlb_io_resp_paddr[31:3]};	// @[NBDcache.scala:739:20, :972:{32,47}]
+  wire             _T_184 = (s2_valid_masked | cache_resp_bits_replay) & ~s2_sc_fail & _GEN_3 == s2_req_addr[39:3] & (_T_161 | _T_162 | s2_sc | _cache_resp_bits_has_data_T_7 | _cache_resp_bits_has_data_T_8 | _cache_resp_bits_has_data_T_9 | _cache_resp_bits_has_data_T_10 | _cache_resp_bits_has_data_T_14 | _cache_resp_bits_has_data_T_15 | _cache_resp_bits_has_data_T_16 | _cache_resp_bits_has_data_T_17 | _cache_resp_bits_has_data_T_18);	// @[Consts.scala:86:{32,49,66,76}, NBDcache.scala:723:19, :724:47, :849:26, :882:59, :969:23, :972:{47,61,77}, :1001:31, package.scala:16:47]
+  wire             _T_212 = s3_valid & _GEN_3 == s3_req_addr[39:3] & (s3_req_cmd == 5'h1 | s3_req_cmd == 5'h11 | s3_req_cmd == 5'h7 | s3_req_cmd == 5'h4 | s3_req_cmd == 5'h9 | s3_req_cmd == 5'hA | s3_req_cmd == 5'hB | s3_req_cmd == 5'h8 | s3_req_cmd == 5'hC | s3_req_cmd == 5'hD | s3_req_cmd == 5'hE | s3_req_cmd == 5'hF);	// @[Consts.scala:86:{32,49,66,76}, NBDcache.scala:728:25, :729:19, :972:{47,61,77}, package.scala:16:47]
+  wire             _T_242 = _T_184 | _T_212 | s4_valid & _GEN_3 == s4_req_addr[39:3] & (s4_req_cmd == 5'h1 | s4_req_cmd == 5'h11 | s4_req_cmd == 5'h7 | s4_req_cmd == 5'h4 | s4_req_cmd == 5'h9 | s4_req_cmd == 5'hA | s4_req_cmd == 5'hB | s4_req_cmd == 5'h8 | s4_req_cmd == 5'hC | s4_req_cmd == 5'hD | s4_req_cmd == 5'hE | s4_req_cmd == 5'hF);	// @[Consts.scala:86:{32,49,66,76}, NBDcache.scala:966:25, :972:{47,61,77}, :977:38, Reg.scala:19:16, package.scala:16:47]
+  wire             _mshrs_io_resp_ready_T = s1_valid | s1_replay;	// @[NBDcache.scala:715:25, :718:26, :996:49]
   always @(posedge clock) begin
     if (reset) begin
       s1_valid <= 1'h0;	// @[NBDcache.scala:715:25]
@@ -568,18 +561,17 @@ module NonBlockingDCache(
       beatsLeft <= 9'h0;	// @[Arbiter.scala:88:30]
       state_0 <= 1'h0;	// @[Arbiter.scala:117:26]
       state_1 <= 1'h0;	// @[Arbiter.scala:117:26]
-      s4_valid <= 1'h0;	// @[NBDcache.scala:960:25]
-      block_miss <= 1'h0;	// @[NBDcache.scala:1003:27]
-      io_cpu_perf_acquire_counter <= 9'h0;	// @[Edges.scala:229:27]
+      s4_valid <= 1'h0;	// @[NBDcache.scala:966:25]
+      block_miss <= 1'h0;	// @[NBDcache.scala:1009:27]
       io_cpu_perf_release_counter <= 9'h0;	// @[Edges.scala:229:27]
     end
     else begin
-      s1_valid <= ~_GEN_1 & io_cpu_req_valid;	// @[Decoupled.scala:51:35, NBDcache.scala:714:20, :715:25, :749:{54,73}, :814:{38,57}, :820:{34,53}, :1005:32, :1006:22]
+      s1_valid <= ~_GEN_1 & io_cpu_req_valid;	// @[Decoupled.scala:51:35, NBDcache.scala:714:20, :715:25, :749:{54,73}, :814:{38,57}, :820:{34,53}, :1011:32, :1012:22]
       s1_replay <= _mshrs_io_replay_valid & _readArb_io_in_1_ready;	// @[NBDcache.scala:712:21, :718:26, :801:23, :917:38]
       s2_valid_REG <= s1_valid & ~io_cpu_s1_kill & ~s1_sfence;	// @[NBDcache.scala:715:25, :717:37, :720:30, :722:{25,42,45}]
       s2_replay_REG <= s1_replay;	// @[NBDcache.scala:718:26, :724:26]
       s3_valid <= (_cache_resp_valid_T | cache_resp_bits_replay) & ~s2_sc_fail & (_T_161 | _T_162 | s2_sc | _cache_resp_bits_has_data_T_7 | _cache_resp_bits_has_data_T_8 | _cache_resp_bits_has_data_T_9 | _cache_resp_bits_has_data_T_10 | _cache_resp_bits_has_data_T_14 | _cache_resp_bits_has_data_T_15 | _cache_resp_bits_has_data_T_16 | _cache_resp_bits_has_data_T_17 | _cache_resp_bits_has_data_T_18);	// @[Consts.scala:86:{32,49,66,76}, NBDcache.scala:724:47, :728:25, :849:26, :851:25, :882:{42,59,71}, package.scala:16:47]
-      if (s2_valid_masked & ~_T_76 & s2_lrsc_addr_match)	// @[NBDcache.scala:841:29, :848:39, :860:{28,65}, :995:31]
+      if (s2_valid_masked & ~_T_76 & s2_lrsc_addr_match)	// @[NBDcache.scala:841:29, :848:39, :860:{28,65}, :1001:31]
         lrsc_count <= 7'h0;	// @[NBDcache.scala:844:27, :852:18, :856:29, :857:18]
       else if (_T_74) begin	// @[NBDcache.scala:851:35]
         if (|lrsc_count)	// @[NBDcache.scala:844:27, :850:20]
@@ -603,18 +595,8 @@ module NonBlockingDCache(
         state_0 <= _wb_io_release_valid;	// @[Arbiter.scala:117:26, NBDcache.scala:710:18]
         state_1 <= ~_wb_io_release_valid & _prober_io_rep_valid;	// @[Arbiter.scala:17:61, :99:79, :117:26, NBDcache.scala:710:18, :711:22]
       end
-      s4_valid <= s3_valid;	// @[NBDcache.scala:728:25, :960:25]
-      block_miss <= (s2_valid | block_miss) & s2_nack_miss;	// @[NBDcache.scala:722:66, :993:30, :1003:27, :1004:{27,42}]
-      if (_io_cpu_perf_acquire_T) begin	// @[Decoupled.scala:51:35]
-        if (io_cpu_perf_acquire_counter == 9'h0) begin	// @[Edges.scala:229:27, :231:25]
-          if (_mshrs_io_mem_acquire_bits_opcode[2])	// @[Edges.scala:92:37, NBDcache.scala:712:21]
-            io_cpu_perf_acquire_counter <= 9'h0;	// @[Edges.scala:229:27]
-          else	// @[Edges.scala:92:37]
-            io_cpu_perf_acquire_counter <= ~(_io_cpu_perf_acquire_beats1_decode_T_1[11:3]);	// @[Edges.scala:229:27, package.scala:235:{46,71,76}]
-        end
-        else	// @[Edges.scala:231:25]
-          io_cpu_perf_acquire_counter <= io_cpu_perf_acquire_counter - 9'h1;	// @[Edges.scala:229:27, :230:28]
-      end
+      s4_valid <= s3_valid;	// @[NBDcache.scala:728:25, :966:25]
+      block_miss <= (s2_valid | block_miss) & s2_nack_miss;	// @[NBDcache.scala:722:66, :999:30, :1009:27, :1010:{27,42}]
       if (_io_cpu_perf_release_T) begin	// @[Decoupled.scala:51:35]
         if (io_cpu_perf_release_counter == 9'h0) begin	// @[Edges.scala:229:27, :231:25]
           if (out_2_bits_opcode[0])	// @[Edges.scala:102:36, Mux.scala:27:73]
@@ -664,7 +646,7 @@ module NonBlockingDCache(
       s2_hit_state_r_2_state <= _meta_io_resp_2_coh_state;	// @[NBDcache.scala:793:20, Reg.scala:19:16]
       s2_hit_state_r_3_state <= _meta_io_resp_3_coh_state;	// @[NBDcache.scala:793:20, Reg.scala:19:16]
       s2_replaced_way_en_r <= {_lfsr_prng_io_out_1, _lfsr_prng_io_out_0};	// @[PRNG.scala:91:22, Reg.scala:19:16, package.scala:155:13]
-      s2_store_bypass <= _T_242;	// @[NBDcache.scala:968:28, :971:38]
+      s2_store_bypass <= _T_242;	// @[NBDcache.scala:974:28, :977:38]
       io_cpu_s2_xcpt_r_pf_ld <= _dtlb_io_resp_pf_ld;	// @[NBDcache.scala:739:20, Reg.scala:19:16]
       io_cpu_s2_xcpt_r_pf_st <= _dtlb_io_resp_pf_st;	// @[NBDcache.scala:739:20, Reg.scala:19:16]
       io_cpu_s2_xcpt_r_ae_ld <= _dtlb_io_resp_ae_ld;	// @[NBDcache.scala:739:20, Reg.scala:19:16]
@@ -710,23 +692,23 @@ module NonBlockingDCache(
       s2_repl_meta_r_3_coh_state <= _meta_io_resp_3_coh_state;	// @[NBDcache.scala:793:20, Reg.scala:19:16]
       s2_repl_meta_r_3_tag <= _meta_io_resp_3_tag;	// @[NBDcache.scala:793:20, Reg.scala:19:16]
     end
-    if (s3_valid & _metaReadArb_io_out_valid) begin	// @[NBDcache.scala:728:25, :794:27, :961:43]
+    if (s3_valid & _metaReadArb_io_out_valid) begin	// @[NBDcache.scala:728:25, :794:27, :967:43]
       s4_req_addr <= s3_req_addr;	// @[NBDcache.scala:729:19, Reg.scala:19:16]
       s4_req_cmd <= s3_req_cmd;	// @[NBDcache.scala:729:19, Reg.scala:19:16]
       s4_req_data <= s3_req_data;	// @[NBDcache.scala:729:19, Reg.scala:19:16]
     end
-    if (s1_clk_en & _T_242) begin	// @[NBDcache.scala:719:22, :967:33, :969:20, :971:{38,44}, :972:28]
-      if (_T_184)	// @[NBDcache.scala:966:77]
-        s2_store_bypass_data <= _amoalu_io_out;	// @[NBDcache.scala:883:22, :967:33]
-      else if (_T_212)	// @[NBDcache.scala:966:77]
-        s2_store_bypass_data <= s3_req_data;	// @[NBDcache.scala:729:19, :967:33]
-      else	// @[NBDcache.scala:966:77]
-        s2_store_bypass_data <= s4_req_data;	// @[NBDcache.scala:967:33, Reg.scala:19:16]
+    if (s1_clk_en & _T_242) begin	// @[NBDcache.scala:719:22, :973:33, :975:20, :977:{38,44}, :978:28]
+      if (_T_184)	// @[NBDcache.scala:972:77]
+        s2_store_bypass_data <= _amoalu_io_out;	// @[NBDcache.scala:883:22, :973:33]
+      else if (_T_212)	// @[NBDcache.scala:972:77]
+        s2_store_bypass_data <= s3_req_data;	// @[NBDcache.scala:729:19, :973:33]
+      else	// @[NBDcache.scala:972:77]
+        s2_store_bypass_data <= s4_req_data;	// @[NBDcache.scala:973:33, Reg.scala:19:16]
     end
-    if (_mshrs_io_resp_ready_T)	// @[NBDcache.scala:990:49]
-      s2_nack_hit <= s1_nack;	// @[NBDcache.scala:988:74, Reg.scala:19:16]
-    mshrs_io_resp_ready_REG <= ~_mshrs_io_resp_ready_T;	// @[NBDcache.scala:990:49, :1030:{33,34}]
-    io_cpu_s2_xcpt_REG <= _dtlb_io_req_valid_T_2 & ~s1_nack;	// @[NBDcache.scala:742:52, :988:74, :1039:{41,44}, :1041:32]
+    if (_mshrs_io_resp_ready_T)	// @[NBDcache.scala:996:49]
+      s2_nack_hit <= s1_nack;	// @[NBDcache.scala:994:74, Reg.scala:19:16]
+    mshrs_io_resp_ready_REG <= ~_mshrs_io_resp_ready_T;	// @[NBDcache.scala:996:49, :1036:{33,34}]
+    io_cpu_s2_xcpt_REG <= _dtlb_io_req_valid_T_2 & ~s1_nack;	// @[NBDcache.scala:742:52, :994:74, :1045:{41,44}, :1047:32]
     io_cpu_s2_xcpt_r_gf_ld <= ~s1_clk_en & io_cpu_s2_xcpt_r_gf_ld;	// @[NBDcache.scala:719:22, Reg.scala:19:16, :20:{18,22}]
     io_cpu_s2_xcpt_r_gf_st <= ~s1_clk_en & io_cpu_s2_xcpt_r_gf_st;	// @[NBDcache.scala:719:22, Reg.scala:19:16, :20:{18,22}]
   end // always @(posedge)
@@ -878,16 +860,16 @@ module NonBlockingDCache(
         beatsLeft = _RANDOM_25[25:17];	// @[Arbiter.scala:88:30, Reg.scala:19:16]
         state_0 = _RANDOM_25[26];	// @[Arbiter.scala:117:26, Reg.scala:19:16]
         state_1 = _RANDOM_25[27];	// @[Arbiter.scala:117:26, Reg.scala:19:16]
-        s4_valid = _RANDOM_25[28];	// @[NBDcache.scala:960:25, Reg.scala:19:16]
+        s4_valid = _RANDOM_25[28];	// @[NBDcache.scala:966:25, Reg.scala:19:16]
         s4_req_addr = {_RANDOM_25[31:29], _RANDOM_26, _RANDOM_27[4:0]};	// @[Reg.scala:19:16]
         s4_req_cmd = _RANDOM_27[16:12];	// @[Reg.scala:19:16]
         s4_req_data = {_RANDOM_27[31:26], _RANDOM_28, _RANDOM_29[25:0]};	// @[Reg.scala:19:16]
-        s2_store_bypass_data = {_RANDOM_30[31:2], _RANDOM_31, _RANDOM_32[1:0]};	// @[NBDcache.scala:967:33]
-        s2_store_bypass = _RANDOM_32[2];	// @[NBDcache.scala:967:33, :968:28]
-        s2_nack_hit = _RANDOM_32[3];	// @[NBDcache.scala:967:33, Reg.scala:19:16]
-        block_miss = _RANDOM_32[5];	// @[NBDcache.scala:967:33, :1003:27]
-        mshrs_io_resp_ready_REG = _RANDOM_32[6];	// @[NBDcache.scala:967:33, :1030:33]
-        io_cpu_s2_xcpt_REG = _RANDOM_32[7];	// @[NBDcache.scala:967:33, :1041:32]
+        s2_store_bypass_data = {_RANDOM_30[31:2], _RANDOM_31, _RANDOM_32[1:0]};	// @[NBDcache.scala:973:33]
+        s2_store_bypass = _RANDOM_32[2];	// @[NBDcache.scala:973:33, :974:28]
+        s2_nack_hit = _RANDOM_32[3];	// @[NBDcache.scala:973:33, Reg.scala:19:16]
+        block_miss = _RANDOM_32[5];	// @[NBDcache.scala:973:33, :1009:27]
+        mshrs_io_resp_ready_REG = _RANDOM_32[6];	// @[NBDcache.scala:973:33, :1036:33]
+        io_cpu_s2_xcpt_REG = _RANDOM_32[7];	// @[NBDcache.scala:973:33, :1047:32]
         io_cpu_s2_xcpt_r_pf_ld = _RANDOM_34[18];	// @[Reg.scala:19:16]
         io_cpu_s2_xcpt_r_pf_st = _RANDOM_34[19];	// @[Reg.scala:19:16]
         io_cpu_s2_xcpt_r_gf_ld = _RANDOM_34[21];	// @[Reg.scala:19:16]
@@ -896,7 +878,6 @@ module NonBlockingDCache(
         io_cpu_s2_xcpt_r_ae_st = _RANDOM_34[25];	// @[Reg.scala:19:16]
         io_cpu_s2_xcpt_r_ma_ld = _RANDOM_34[27];	// @[Reg.scala:19:16]
         io_cpu_s2_xcpt_r_ma_st = _RANDOM_34[28];	// @[Reg.scala:19:16]
-        io_cpu_perf_acquire_counter = _RANDOM_35[9:1];	// @[Edges.scala:229:27]
         io_cpu_perf_release_counter = _RANDOM_35[18:10];	// @[Edges.scala:229:27]
       `endif // RANDOMIZE_REG_INIT
     end // initial
@@ -971,7 +952,7 @@ module NonBlockingDCache(
   MSHRFile mshrs (	// @[NBDcache.scala:712:21]
     .clock                             (clock),
     .reset                             (reset),
-    .io_req_valid                      (_GEN),	// @[NBDcache.scala:903:22, :991:{22,43}]
+    .io_req_valid                      (_GEN),	// @[NBDcache.scala:903:22, :997:{22,43}]
     .io_req_bits_addr                  (s2_req_addr),	// @[NBDcache.scala:723:19]
     .io_req_bits_tag                   (s2_req_tag),	// @[NBDcache.scala:723:19]
     .io_req_bits_cmd                   (s2_req_cmd),	// @[NBDcache.scala:723:19]
@@ -988,7 +969,7 @@ module NonBlockingDCache(
     .io_req_bits_old_meta_coh_state    ((|s2_tag_match_way) ? mshrs_io_req_bits_old_meta_meta_coh_state : (_s2_repl_meta_T_8 ? s2_repl_meta_r_coh_state : 2'h0) | (_s2_repl_meta_T_9 ? s2_repl_meta_r_1_coh_state : 2'h0) | (_s2_repl_meta_T_10 ? s2_repl_meta_r_2_coh_state : 2'h0) | ((&s2_replaced_way_en_r) ? s2_repl_meta_r_3_coh_state : 2'h0)),	// @[Mux.scala:27:73, :29:36, NBDcache.scala:838:39, :906:36, Reg.scala:19:16]
     .io_req_bits_old_meta_tag          ((_s2_repl_meta_T_8 ? s2_repl_meta_r_tag : 22'h0) | (_s2_repl_meta_T_9 ? s2_repl_meta_r_1_tag : 22'h0) | (_s2_repl_meta_T_10 ? s2_repl_meta_r_2_tag : 22'h0) | ((&s2_replaced_way_en_r) ? s2_repl_meta_r_3_tag : 22'h0)),	// @[Mux.scala:27:73, :29:36, Reg.scala:19:16]
     .io_req_bits_way_en                ((|s2_tag_match_way) ? s2_tag_match_way : 4'h1 << s2_replaced_way_en_r),	// @[Cat.scala:33:92, NBDcache.scala:838:39, :907:34, OneHot.scala:57:35, Reg.scala:19:16]
-    .io_resp_ready                     (mshrs_io_resp_ready_REG),	// @[NBDcache.scala:1030:33]
+    .io_resp_ready                     (mshrs_io_resp_ready_REG),	// @[NBDcache.scala:1036:33]
     .io_mem_acquire_ready              (auto_out_a_ready),
     .io_mem_grant_valid                (tl_out_d_ready & auto_out_d_valid),	// @[Decoupled.scala:51:35, NBDcache.scala:935:45]
     .io_mem_grant_bits_opcode          (auto_out_d_bits_opcode),
@@ -1016,10 +997,10 @@ module NonBlockingDCache(
     .io_resp_bits_has_data             (_mshrs_io_resp_bits_has_data),
     .io_resp_bits_store_data           (_mshrs_io_resp_bits_store_data),
     .io_secondary_miss                 (_mshrs_io_secondary_miss),
-    .io_mem_acquire_valid              (_mshrs_io_mem_acquire_valid),
-    .io_mem_acquire_bits_opcode        (_mshrs_io_mem_acquire_bits_opcode),
+    .io_mem_acquire_valid              (auto_out_a_valid),
+    .io_mem_acquire_bits_opcode        (auto_out_a_bits_opcode),
     .io_mem_acquire_bits_param         (auto_out_a_bits_param),
-    .io_mem_acquire_bits_size          (_mshrs_io_mem_acquire_bits_size),
+    .io_mem_acquire_bits_size          (auto_out_a_bits_size),
     .io_mem_acquire_bits_source        (auto_out_a_bits_source),
     .io_mem_acquire_bits_address       (auto_out_a_bits_address),
     .io_mem_acquire_bits_mask          (auto_out_a_bits_mask),
@@ -1155,7 +1136,7 @@ module NonBlockingDCache(
     .io_resp_ae_st                 (_dtlb_io_resp_ae_st),
     .io_resp_ma_ld                 (_dtlb_io_resp_ma_ld),
     .io_resp_ma_st                 (_dtlb_io_resp_ma_st),
-    .io_ptw_req_valid              (_dtlb_io_ptw_req_valid),
+    .io_ptw_req_valid              (io_ptw_req_valid),
     .io_ptw_req_bits_bits_addr     (io_ptw_req_bits_bits_addr),
     .io_ptw_req_bits_bits_need_gpa (io_ptw_req_bits_bits_need_gpa),
     .io_ptw_req_bits_bits_vstage1  (io_ptw_req_bits_bits_vstage1),
@@ -1267,14 +1248,14 @@ module NonBlockingDCache(
   AMOALU amoalu (	// @[NBDcache.scala:883:22]
     .io_mask ({(s2_req_addr[2] ? _amoalu_io_mask_T_1 : 4'h0) | {4{&s2_req_size}}, s2_req_addr[2] ? 4'h0 : _amoalu_io_mask_T_1}),	// @[AMOALU.scala:18:{22,27,42,47,53}, :19:22, Cat.scala:33:92, NBDcache.scala:723:19]
     .io_cmd  (s2_req_cmd),	// @[NBDcache.scala:723:19]
-    .io_lhs  (s2_data_word),	// @[NBDcache.scala:979:25]
+    .io_lhs  (s2_data_word),	// @[NBDcache.scala:985:25]
     .io_rhs  (s2_req_data),	// @[NBDcache.scala:723:19]
     .io_out  (_amoalu_io_out)
   );
   MaxPeriodFibonacciLFSR lfsr_prng (	// @[PRNG.scala:91:22]
     .clock        (clock),
     .reset        (reset),
-    .io_increment (_mshrs_io_req_ready & _GEN),	// @[Decoupled.scala:51:35, NBDcache.scala:712:21, :903:22, :991:{22,43}]
+    .io_increment (_mshrs_io_req_ready & _GEN),	// @[Decoupled.scala:51:35, NBDcache.scala:712:21, :903:22, :997:{22,43}]
     .io_out_0     (_lfsr_prng_io_out_0),
     .io_out_1     (_lfsr_prng_io_out_1),
     .io_out_2     (_lfsr_prng_io_out_2),
@@ -1316,9 +1297,6 @@ module NonBlockingDCache(
     .io_out_bits_way_en    (_wbArb_io_out_bits_way_en),
     .io_out_bits_voluntary (_wbArb_io_out_bits_voluntary)
   );
-  assign auto_out_a_valid = _mshrs_io_mem_acquire_valid;	// @[NBDcache.scala:712:21]
-  assign auto_out_a_bits_opcode = _mshrs_io_mem_acquire_bits_opcode;	// @[NBDcache.scala:712:21]
-  assign auto_out_a_bits_size = _mshrs_io_mem_acquire_bits_size;	// @[NBDcache.scala:712:21]
   assign auto_out_a_bits_corrupt = 1'h0;
   assign auto_out_b_ready = _prober_io_req_ready & ~(|(lrsc_count[6:2]));	// @[NBDcache.scala:711:22, :844:27, :845:31, :922:44, :923:41]
   assign auto_out_c_valid = out_2_valid;	// @[Arbiter.scala:126:29]
@@ -1329,36 +1307,33 @@ module NonBlockingDCache(
   assign auto_out_c_bits_address = (muxStateEarly_0 ? _wb_io_release_bits_address : 32'h0) | (muxStateEarly_1 ? _prober_io_rep_bits_address : 32'h0);	// @[Arbiter.scala:118:30, Mux.scala:27:73, NBDcache.scala:710:18, :711:22]
   assign auto_out_c_bits_data = muxStateEarly_0 ? _wb_io_release_bits_data : 64'h0;	// @[Arbiter.scala:118:30, Mux.scala:27:73, NBDcache.scala:710:18]
   assign auto_out_d_ready = tl_out_d_ready;	// @[NBDcache.scala:935:45]
-  assign io_cpu_req_ready = ~_GEN_1;	// @[NBDcache.scala:714:20, :749:{54,73}, :814:{38,57}, :820:{34,53}, :1005:32, :1006:22]
-  assign io_cpu_s2_nack = _io_cpu_s2_nack_output;	// @[NBDcache.scala:1032:30]
-  assign io_cpu_resp_valid = mshrs_io_resp_ready_REG ? _mshrs_io_resp_valid : cache_resp_bits_replay | _cache_resp_valid_T;	// @[NBDcache.scala:712:21, :724:47, :851:25, :1010:34, :1030:33, :1033:21]
-  assign io_cpu_resp_bits_addr = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_addr : s2_req_addr;	// @[NBDcache.scala:712:21, :723:19, :1030:33, :1033:21]
-  assign io_cpu_resp_bits_tag = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_tag : s2_req_tag;	// @[NBDcache.scala:712:21, :723:19, :1030:33, :1033:21]
-  assign io_cpu_resp_bits_cmd = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_cmd : s2_req_cmd;	// @[NBDcache.scala:712:21, :723:19, :1030:33, :1033:21]
-  assign io_cpu_resp_bits_size = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_size : s2_req_size;	// @[NBDcache.scala:712:21, :723:19, :1030:33, :1033:21]
-  assign io_cpu_resp_bits_signed = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_signed : s2_req_signed;	// @[NBDcache.scala:712:21, :723:19, :1030:33, :1033:21]
-  assign io_cpu_resp_bits_dprv = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_dprv : 2'bz;	// @[NBDcache.scala:712:21, :1009:24, :1030:33, :1033:21]
-  assign io_cpu_resp_bits_dv = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_dv : 1'bz;	// @[NBDcache.scala:712:21, :1009:24, :1030:33, :1033:21]
-  assign io_cpu_resp_bits_data = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_data : {s2_req_size == 2'h0 | s2_sc ? {56{s2_req_signed & cache_resp_bits_data_zeroed_2[7]}} : {s2_req_size == 2'h1 ? {48{s2_req_signed & cache_resp_bits_data_shifted_1[15]}} : {_io_cpu_resp_bits_data_word_bypass_T_1 ? {32{s2_req_signed & cache_resp_bits_data_shifted[31]}} : s2_data_word[63:32], cache_resp_bits_data_shifted[31:16]}, cache_resp_bits_data_shifted_1[15:8]}, cache_resp_bits_data_zeroed_2[7:1], cache_resp_bits_data_zeroed_2[0] | s2_sc_fail};	// @[AMOALU.scala:40:{24,37}, :42:23, :43:{20,26,34,72,81,94}, Bitwise.scala:77:12, Cat.scala:33:92, Consts.scala:86:66, NBDcache.scala:712:21, :723:19, :849:26, :979:25, :1023:40, :1030:33, :1033:21]
-  assign io_cpu_resp_bits_mask = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_mask : 8'bz;	// @[NBDcache.scala:712:21, :1009:24, :1030:33, :1033:21]
-  assign io_cpu_resp_bits_replay = mshrs_io_resp_ready_REG | cache_resp_bits_replay;	// @[NBDcache.scala:724:47, :1030:33, :1033:21]
-  assign io_cpu_resp_bits_has_data = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_has_data : _cache_resp_bits_has_data_T | _cache_resp_bits_has_data_T_1 | s2_lr | s2_sc | _cache_resp_bits_has_data_T_7 | _cache_resp_bits_has_data_T_8 | _cache_resp_bits_has_data_T_9 | _cache_resp_bits_has_data_T_10 | _cache_resp_bits_has_data_T_14 | _cache_resp_bits_has_data_T_15 | _cache_resp_bits_has_data_T_16 | _cache_resp_bits_has_data_T_17 | _cache_resp_bits_has_data_T_18;	// @[Consts.scala:85:68, :86:66, :87:71, NBDcache.scala:712:21, :1030:33, :1033:21, package.scala:16:47]
-  assign io_cpu_resp_bits_data_word_bypass = {_io_cpu_resp_bits_data_word_bypass_T_1 ? {32{s2_req_signed & io_cpu_resp_bits_data_word_bypass_shifted[31]}} : s2_data_word[63:32], io_cpu_resp_bits_data_word_bypass_shifted};	// @[AMOALU.scala:40:{24,37}, :43:{20,26,72,81}, Bitwise.scala:77:12, Cat.scala:33:92, NBDcache.scala:723:19, :979:25]
-  assign io_cpu_resp_bits_data_raw = s2_data_word;	// @[NBDcache.scala:979:25]
-  assign io_cpu_resp_bits_store_data = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_store_data : s2_req_data;	// @[NBDcache.scala:712:21, :723:19, :1030:33, :1033:21]
-  assign io_cpu_replay_next = s1_replay & s1_read | _mshrs_io_replay_next;	// @[Consts.scala:85:68, NBDcache.scala:712:21, :718:26, :1037:{36,48}]
-  assign io_cpu_s2_xcpt_ma_ld = _io_cpu_s2_xcpt_ma_ld_output;	// @[NBDcache.scala:1041:24]
-  assign io_cpu_s2_xcpt_ma_st = _io_cpu_s2_xcpt_ma_st_output;	// @[NBDcache.scala:1041:24]
-  assign io_cpu_s2_xcpt_pf_ld = _io_cpu_s2_xcpt_pf_ld_output;	// @[NBDcache.scala:1041:24]
-  assign io_cpu_s2_xcpt_pf_st = _io_cpu_s2_xcpt_pf_st_output;	// @[NBDcache.scala:1041:24]
-  assign io_cpu_s2_xcpt_gf_ld = _io_cpu_s2_xcpt_gf_ld_output;	// @[NBDcache.scala:1041:24]
-  assign io_cpu_s2_xcpt_gf_st = _io_cpu_s2_xcpt_gf_st_output;	// @[NBDcache.scala:1041:24]
-  assign io_cpu_s2_xcpt_ae_ld = _io_cpu_s2_xcpt_ae_ld_output;	// @[NBDcache.scala:1041:24]
-  assign io_cpu_s2_xcpt_ae_st = _io_cpu_s2_xcpt_ae_st_output;	// @[NBDcache.scala:1041:24]
-  assign io_cpu_ordered = _mshrs_io_fence_rdy & ~s1_valid & ~s2_valid;	// @[NBDcache.scala:712:21, :715:25, :722:66, :737:10, :1036:{53,56}]
-  assign io_cpu_perf_acquire = (io_cpu_perf_acquire_counter == 9'h1 | (_mshrs_io_mem_acquire_bits_opcode[2] ? 9'h0 : ~(_io_cpu_perf_acquire_beats1_decode_T_1[11:3])) == 9'h0) & _io_cpu_perf_acquire_T;	// @[Decoupled.scala:51:35, Edges.scala:92:37, :221:14, :229:27, :232:{25,33,43}, :233:22, NBDcache.scala:712:21, package.scala:235:{46,71,76}]
+  assign io_cpu_req_ready = ~_GEN_1;	// @[NBDcache.scala:714:20, :749:{54,73}, :814:{38,57}, :820:{34,53}, :1011:32, :1012:22]
+  assign io_cpu_s2_nack = _io_cpu_s2_nack_output;	// @[NBDcache.scala:1038:30]
+  assign io_cpu_resp_valid = mshrs_io_resp_ready_REG ? _mshrs_io_resp_valid : cache_resp_bits_replay | _cache_resp_valid_T;	// @[NBDcache.scala:712:21, :724:47, :851:25, :1016:34, :1036:33, :1039:21]
+  assign io_cpu_resp_bits_addr = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_addr : s2_req_addr;	// @[NBDcache.scala:712:21, :723:19, :1036:33, :1039:21]
+  assign io_cpu_resp_bits_tag = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_tag : s2_req_tag;	// @[NBDcache.scala:712:21, :723:19, :1036:33, :1039:21]
+  assign io_cpu_resp_bits_cmd = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_cmd : s2_req_cmd;	// @[NBDcache.scala:712:21, :723:19, :1036:33, :1039:21]
+  assign io_cpu_resp_bits_size = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_size : s2_req_size;	// @[NBDcache.scala:712:21, :723:19, :1036:33, :1039:21]
+  assign io_cpu_resp_bits_signed = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_signed : s2_req_signed;	// @[NBDcache.scala:712:21, :723:19, :1036:33, :1039:21]
+  assign io_cpu_resp_bits_dprv = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_dprv : 2'bz;	// @[NBDcache.scala:712:21, :1015:24, :1036:33, :1039:21]
+  assign io_cpu_resp_bits_dv = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_dv : 1'bz;	// @[NBDcache.scala:712:21, :1015:24, :1036:33, :1039:21]
+  assign io_cpu_resp_bits_data = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_data : {s2_req_size == 2'h0 | s2_sc ? {56{s2_req_signed & cache_resp_bits_data_zeroed_2[7]}} : {s2_req_size == 2'h1 ? {48{s2_req_signed & cache_resp_bits_data_shifted_1[15]}} : {_io_cpu_resp_bits_data_word_bypass_T_1 ? {32{s2_req_signed & cache_resp_bits_data_shifted[31]}} : s2_data_word[63:32], cache_resp_bits_data_shifted[31:16]}, cache_resp_bits_data_shifted_1[15:8]}, cache_resp_bits_data_zeroed_2[7:1], cache_resp_bits_data_zeroed_2[0] | s2_sc_fail};	// @[AMOALU.scala:40:{24,37}, :42:23, :43:{20,26,34,72,81,94}, Bitwise.scala:77:12, Cat.scala:33:92, Consts.scala:86:66, NBDcache.scala:712:21, :723:19, :849:26, :985:25, :1029:40, :1036:33, :1039:21]
+  assign io_cpu_resp_bits_mask = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_mask : 8'bz;	// @[NBDcache.scala:712:21, :1015:24, :1036:33, :1039:21]
+  assign io_cpu_resp_bits_replay = mshrs_io_resp_ready_REG | cache_resp_bits_replay;	// @[NBDcache.scala:724:47, :1036:33, :1039:21]
+  assign io_cpu_resp_bits_has_data = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_has_data : _cache_resp_bits_has_data_T | _cache_resp_bits_has_data_T_1 | s2_lr | s2_sc | _cache_resp_bits_has_data_T_7 | _cache_resp_bits_has_data_T_8 | _cache_resp_bits_has_data_T_9 | _cache_resp_bits_has_data_T_10 | _cache_resp_bits_has_data_T_14 | _cache_resp_bits_has_data_T_15 | _cache_resp_bits_has_data_T_16 | _cache_resp_bits_has_data_T_17 | _cache_resp_bits_has_data_T_18;	// @[Consts.scala:85:68, :86:66, :87:71, NBDcache.scala:712:21, :1036:33, :1039:21, package.scala:16:47]
+  assign io_cpu_resp_bits_data_word_bypass = {_io_cpu_resp_bits_data_word_bypass_T_1 ? {32{s2_req_signed & io_cpu_resp_bits_data_word_bypass_shifted[31]}} : s2_data_word[63:32], io_cpu_resp_bits_data_word_bypass_shifted};	// @[AMOALU.scala:40:{24,37}, :43:{20,26,72,81}, Bitwise.scala:77:12, Cat.scala:33:92, NBDcache.scala:723:19, :985:25]
+  assign io_cpu_resp_bits_data_raw = s2_data_word;	// @[NBDcache.scala:985:25]
+  assign io_cpu_resp_bits_store_data = mshrs_io_resp_ready_REG ? _mshrs_io_resp_bits_store_data : s2_req_data;	// @[NBDcache.scala:712:21, :723:19, :1036:33, :1039:21]
+  assign io_cpu_replay_next = s1_replay & s1_read | _mshrs_io_replay_next;	// @[Consts.scala:85:68, NBDcache.scala:712:21, :718:26, :1043:{36,48}]
+  assign io_cpu_s2_xcpt_ma_ld = _io_cpu_s2_xcpt_ma_ld_output;	// @[NBDcache.scala:1047:24]
+  assign io_cpu_s2_xcpt_ma_st = _io_cpu_s2_xcpt_ma_st_output;	// @[NBDcache.scala:1047:24]
+  assign io_cpu_s2_xcpt_pf_ld = _io_cpu_s2_xcpt_pf_ld_output;	// @[NBDcache.scala:1047:24]
+  assign io_cpu_s2_xcpt_pf_st = _io_cpu_s2_xcpt_pf_st_output;	// @[NBDcache.scala:1047:24]
+  assign io_cpu_s2_xcpt_gf_ld = _io_cpu_s2_xcpt_gf_ld_output;	// @[NBDcache.scala:1047:24]
+  assign io_cpu_s2_xcpt_gf_st = _io_cpu_s2_xcpt_gf_st_output;	// @[NBDcache.scala:1047:24]
+  assign io_cpu_s2_xcpt_ae_ld = _io_cpu_s2_xcpt_ae_ld_output;	// @[NBDcache.scala:1047:24]
+  assign io_cpu_s2_xcpt_ae_st = _io_cpu_s2_xcpt_ae_st_output;	// @[NBDcache.scala:1047:24]
+  assign io_cpu_ordered = _mshrs_io_fence_rdy & ~s1_valid & ~s2_valid;	// @[NBDcache.scala:712:21, :715:25, :722:66, :737:10, :1042:{53,56}]
   assign io_cpu_perf_release = (io_cpu_perf_release_counter == 9'h1 | (out_2_bits_opcode[0] ? ~(_io_cpu_perf_release_beats1_decode_T_1[11:3]) : 9'h0) == 9'h0) & _io_cpu_perf_release_T;	// @[Decoupled.scala:51:35, Edges.scala:102:36, :221:14, :229:27, :232:{25,33,43}, :233:22, Mux.scala:27:73, package.scala:235:{46,71,76}]
-  assign io_cpu_perf_tlbMiss = io_ptw_req_ready & _dtlb_io_ptw_req_valid;	// @[Decoupled.scala:51:35, NBDcache.scala:739:20]
-  assign io_ptw_req_valid = _dtlb_io_ptw_req_valid;	// @[NBDcache.scala:739:20]
 endmodule
 

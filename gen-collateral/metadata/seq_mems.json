@@ -61,13 +61,13 @@
   },
   {
     "module_name": "tag_array_0_ext",
-    "depth": 64,
-    "width": 84,
+    "depth": 32,
+    "width": 88,
     "masked": true,
     "read": false,
     "write": false,
     "readwrite": true,
-    "mask_granularity": 21,
+    "mask_granularity": 22,
     "extra_ports": [],
     "hierarchy": [
       "ChipTop.system.tile_prci_domain.tile_reset_domain_tile.frontend.icache.tag_array.tag_array_0_ext"
@@ -75,7 +75,7 @@
   },
   {
     "module_name": "data_arrays_0_ext",
-    "depth": 512,
+    "depth": 256,
     "width": 128,
     "masked": true,
     "read": false,

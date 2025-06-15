@@ -124,17 +124,17 @@ module TLUART(
   assign out_woready_2 = _out_wofireMux_T_2 & out_backSel_0 & _out_out_bits_data_WIRE_3;	// @[RegisterRouter.scala:83:24]
   wire             out_woready_10 = _out_wofireMux_T_2 & auto_control_xing_in_a_bits_address[4:3] == 2'h1 & _out_out_bits_data_WIRE_3;	// @[Cat.scala:33:92, OneHot.scala:57:35, RegisterRouter.scala:83:24]
   wire             out_woready_12 = _out_wofireMux_T_2 & auto_control_xing_in_a_bits_address[4:3] == 2'h2 & _out_out_bits_data_WIRE_3;	// @[Cat.scala:33:92, OneHot.scala:57:35, RegisterRouter.scala:83:24]
-  wire [3:0][63:0] _GEN = {{{48'h0, div}}, {{30'h0, ip_rxwm, ip_txwm, 30'h0, ie_rxwm, ie_txwm}}, {{12'h0, rxwm, 15'h0, rxen, 12'h0, txwm, 14'h0, nstop, txen}}, {{~_rxq_io_deq_valid, 23'h0, _rxq_io_deq_bits, ~_txq_io_enq_ready, 31'h0}}};	// @[Bundles.scala:259:74, Cat.scala:33:92, MuxLiteral.scala:49:{10,48}, RegMapFIFO.scala:24:9, :45:21, RegisterRouter.scala:83:24, UART.scala:131:19, :134:19, :136:20, :142:21, :143:21, :150:21, :151:21, :152:22, :186:19, :189:28, :190:28]
+  wire [3:0][63:0] _GEN = {{{48'h0, div}}, {{30'h0, ip_rxwm, ip_txwm, 30'h0, ie_rxwm, ie_txwm}}, {{12'h0, rxwm, 15'h0, rxen, 12'h0, txwm, 14'h0, nstop, txen}}, {{~_rxq_io_deq_valid, 23'h0, _rxq_io_deq_bits, ~_txq_io_enq_ready, 31'h0}}};	// @[Bundles.scala:260:74, Cat.scala:33:92, MuxLiteral.scala:49:{10,48}, RegMapFIFO.scala:24:9, :45:21, RegisterRouter.scala:83:24, UART.scala:131:19, :134:19, :136:20, :142:21, :143:21, :150:21, :151:21, :152:22, :186:19, :189:28, :190:28]
   always @(posedge clock) begin
     if (reset) begin
       div <= 16'h364;	// @[UART.scala:136:20]
-      txen <= 1'h0;	// @[Bundles.scala:259:74, UART.scala:142:21]
-      rxen <= 1'h0;	// @[Bundles.scala:259:74, UART.scala:143:21]
+      txen <= 1'h0;	// @[Bundles.scala:260:74, UART.scala:142:21]
+      rxen <= 1'h0;	// @[Bundles.scala:260:74, UART.scala:143:21]
       txwm <= 4'h0;	// @[UART.scala:150:21]
       rxwm <= 4'h0;	// @[UART.scala:150:21, :151:21]
-      nstop <= 1'h0;	// @[Bundles.scala:259:74, UART.scala:152:22]
-      ie_rxwm <= 1'h0;	// @[Bundles.scala:259:74, UART.scala:186:19]
-      ie_txwm <= 1'h0;	// @[Bundles.scala:259:74, UART.scala:186:19]
+      nstop <= 1'h0;	// @[Bundles.scala:260:74, UART.scala:152:22]
+      ie_rxwm <= 1'h0;	// @[Bundles.scala:260:74, UART.scala:186:19]
+      ie_txwm <= 1'h0;	// @[Bundles.scala:260:74, UART.scala:186:19]
     end
     else begin
       if (_out_wofireMux_T_2 & (&(auto_control_xing_in_a_bits_address[4:3])) & _out_out_bits_data_WIRE_3 & (&{{8{auto_control_xing_in_a_bits_mask[1]}}, {8{auto_control_xing_in_a_bits_mask[0]}}}))	// @[Bitwise.scala:28:17, :77:12, Cat.scala:33:92, RegisterRouter.scala:83:24]
@@ -235,6 +235,6 @@ module TLUART(
   assign auto_control_xing_in_d_bits_opcode = {2'h0, out_front_bits_read};	// @[OneHot.scala:57:35, RegisterRouter.scala:72:36, :98:19]
   assign auto_control_xing_in_d_bits_size = auto_control_xing_in_a_bits_size;
   assign auto_control_xing_in_d_bits_source = auto_control_xing_in_a_bits_source;
-  assign auto_control_xing_in_d_bits_data = _out_out_bits_data_WIRE_3 ? _GEN[auto_control_xing_in_a_bits_address[4:3]] : 64'h0;	// @[Bundles.scala:259:74, Cat.scala:33:92, MuxLiteral.scala:49:10, RegisterRouter.scala:83:24]
+  assign auto_control_xing_in_d_bits_data = _out_out_bits_data_WIRE_3 ? _GEN[auto_control_xing_in_a_bits_address[4:3]] : 64'h0;	// @[Bundles.scala:260:74, Cat.scala:33:92, MuxLiteral.scala:49:10, RegisterRouter.scala:83:24]
 endmodule
 

@@ -100,7 +100,8 @@ module TLXbar_7(
   input  [3:0]  auto_out_b_bits_size,
                 auto_out_b_bits_source,
   input  [31:0] auto_out_b_bits_address,
-  input         auto_out_c_ready,
+  input         auto_out_b_bits_hit,
+                auto_out_c_ready,
                 auto_out_d_valid,
   input  [2:0]  auto_out_d_bits_opcode,
   input  [1:0]  auto_out_d_bits_param,
@@ -122,7 +123,8 @@ module TLXbar_7(
   output [3:0]  auto_in_0_b_bits_size,
   output [2:0]  auto_in_0_b_bits_source,
   output [31:0] auto_in_0_b_bits_address,
-  output        auto_in_0_c_ready,
+  output        auto_in_0_b_bits_hit,
+                auto_in_0_c_ready,
                 auto_in_0_d_valid,
   output [2:0]  auto_in_0_d_bits_opcode,
   output [1:0]  auto_in_0_d_bits_param,
@@ -188,7 +190,7 @@ module TLXbar_7(
           beatsLeft <= 9'h0;	// @[Arbiter.scala:88:30, :112:73, Edges.scala:221:14]
       end
       else	// @[Arbiter.scala:90:24]
-        beatsLeft <= beatsLeft - {8'h0, auto_out_a_ready & x1_out_1_valid};	// @[Arbiter.scala:88:30, :114:52, :126:29, Bundles.scala:259:74, ReadyValidCancel.scala:49:33]
+        beatsLeft <= beatsLeft - {8'h0, auto_out_a_ready & x1_out_1_valid};	// @[Arbiter.scala:88:30, :114:52, :126:29, Bundles.scala:260:74, ReadyValidCancel.scala:49:33]
       if (latch & (|readys_valid))	// @[Arbiter.scala:28:{18,27}, :90:24, Cat.scala:33:92]
         readys_mask <= _readys_mask_T | {_readys_mask_T[0], 1'h0};	// @[Arbiter.scala:24:23, :29:29, package.scala:245:{43,53}]
       if (idle) begin	// @[Arbiter.scala:89:28]
@@ -244,6 +246,7 @@ module TLXbar_7(
   assign auto_in_0_b_bits_size = auto_out_b_bits_size;
   assign auto_in_0_b_bits_source = auto_out_b_bits_source[2:0];	// @[Xbar.scala:231:69]
   assign auto_in_0_b_bits_address = auto_out_b_bits_address;
+  assign auto_in_0_b_bits_hit = auto_out_b_bits_hit;
   assign auto_in_0_c_ready = auto_out_c_ready;
   assign auto_in_0_d_valid = auto_out_d_valid & ~(auto_out_d_bits_source[3]);	// @[Parameters.scala:54:{10,32}, Xbar.scala:182:40]
   assign auto_in_0_d_bits_opcode = auto_out_d_bits_opcode;
@@ -256,10 +259,10 @@ module TLXbar_7(
   assign auto_out_a_valid = x1_out_1_valid;	// @[Arbiter.scala:126:29]
   assign auto_out_a_bits_opcode = (muxStateEarly_0 ? auto_in_0_a_bits_opcode : 3'h0) | {muxStateEarly_1, 2'h0};	// @[Arbiter.scala:26:66, :118:30, Mux.scala:27:73]
   assign auto_out_a_bits_param = muxStateEarly_0 ? auto_in_0_a_bits_param : 3'h0;	// @[Arbiter.scala:118:30, Mux.scala:27:73]
-  assign auto_out_a_bits_size = (muxStateEarly_0 ? auto_in_0_a_bits_size : 4'h0) | (muxStateEarly_1 ? 4'h6 : 4'h0);	// @[Arbiter.scala:118:30, Bundles.scala:259:74, Mux.scala:27:73]
-  assign auto_out_a_bits_source = (muxStateEarly_0 ? {1'h0, auto_in_0_a_bits_source} : 4'h0) | {muxStateEarly_1, 3'h0};	// @[Arbiter.scala:118:30, Bundles.scala:259:74, Mux.scala:27:73, Xbar.scala:240:29]
-  assign auto_out_a_bits_address = (muxStateEarly_0 ? auto_in_0_a_bits_address : 32'h0) | (muxStateEarly_1 ? auto_in_1_a_bits_address : 32'h0);	// @[Arbiter.scala:118:30, Bundles.scala:259:74, Mux.scala:27:73]
-  assign auto_out_a_bits_mask = (muxStateEarly_0 ? auto_in_0_a_bits_mask : 8'h0) | {8{muxStateEarly_1}};	// @[Arbiter.scala:118:30, Bundles.scala:259:74, Mux.scala:27:73]
+  assign auto_out_a_bits_size = (muxStateEarly_0 ? auto_in_0_a_bits_size : 4'h0) | (muxStateEarly_1 ? 4'h6 : 4'h0);	// @[Arbiter.scala:118:30, Bundles.scala:260:74, Mux.scala:27:73]
+  assign auto_out_a_bits_source = (muxStateEarly_0 ? {1'h0, auto_in_0_a_bits_source} : 4'h0) | {muxStateEarly_1, 3'h0};	// @[Arbiter.scala:118:30, Bundles.scala:260:74, Mux.scala:27:73, Xbar.scala:240:29]
+  assign auto_out_a_bits_address = (muxStateEarly_0 ? auto_in_0_a_bits_address : 32'h0) | (muxStateEarly_1 ? auto_in_1_a_bits_address : 32'h0);	// @[Arbiter.scala:118:30, Bundles.scala:260:74, Mux.scala:27:73]
+  assign auto_out_a_bits_mask = (muxStateEarly_0 ? auto_in_0_a_bits_mask : 8'h0) | {8{muxStateEarly_1}};	// @[Arbiter.scala:118:30, Bundles.scala:260:74, Mux.scala:27:73]
   assign auto_out_a_bits_data = muxStateEarly_0 ? auto_in_0_a_bits_data : 64'h0;	// @[Arbiter.scala:118:30, Mux.scala:27:73]
   assign auto_out_a_bits_corrupt = muxStateEarly_0 & auto_in_0_a_bits_corrupt;	// @[Arbiter.scala:118:30, Mux.scala:27:73]
   assign auto_out_b_ready = ~(auto_out_b_bits_source[3]) & auto_in_0_b_ready;	// @[Mux.scala:27:73, Parameters.scala:54:{10,32}]

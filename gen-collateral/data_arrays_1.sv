@@ -69,7 +69,7 @@
 `endif // not def INIT_RANDOM_PROLOG_
 
 module data_arrays_1(	// @[DescribedSRAM.scala:17:26]
-  input  [8:0]   RW0_addr,
+  input  [7:0]   RW0_addr,
   input          RW0_en,
                  RW0_clk,
                  RW0_wmode,

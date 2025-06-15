@@ -70,8 +70,7 @@
 
 module FPUDecoder(
   input  [31:0] io_inst,
-  output        io_sigs_ldst,
-                io_sigs_wen,
+  output        io_sigs_wen,
                 io_sigs_ren1,
                 io_sigs_ren2,
                 io_sigs_ren3,
@@ -115,7 +114,6 @@ module FPUDecoder(
   wire [19:0] _decoder_decoded_T_64 = {io_inst[0], io_inst[1], _GEN[0], _GEN[1], io_inst[4], _GEN[3], io_inst[6], _GEN[11], _GEN[12], _GEN[18], _GEN[19], _GEN[20], _GEN[21], _GEN[22], _GEN[24], _GEN[25], _GEN[26], io_inst[29], io_inst[30], io_inst[31]};	// @[Cat.scala:33:92, pla.scala:78:21, :90:45, :91:29]
   wire [20:0] _decoder_decoded_T_70 = {io_inst[0], io_inst[1], _GEN[0], _GEN[1], io_inst[4], _GEN[3], io_inst[6], _GEN[11], _GEN[12], _GEN[18], _GEN[19], _GEN[20], _GEN[21], _GEN[22], io_inst[25], _GEN[24], _GEN[25], _GEN[26], io_inst[29], io_inst[30], io_inst[31]};	// @[Cat.scala:33:92, pla.scala:78:21, :90:45, :91:29]
   wire [20:0] _decoder_decoded_T_72 = {io_inst[0], io_inst[1], _GEN[0], _GEN[1], io_inst[4], _GEN[3], io_inst[6], _GEN[10], _GEN[11], _GEN[12], _GEN[18], _GEN[19], _GEN[20], _GEN[21], _GEN[22], _GEN[24], _GEN[25], io_inst[28], io_inst[29], io_inst[30], io_inst[31]};	// @[Cat.scala:33:92, pla.scala:78:21, :90:45, :91:29]
-  assign io_sigs_ldst = &{io_inst[0], io_inst[1], io_inst[2], _GEN[1], _GEN[2], _GEN[4], io_inst[13], _GEN[12]};	// @[Cat.scala:33:92, pla.scala:78:21, :90:45, :91:29, :98:74]
   assign io_sigs_wen = |{&_decoder_decoded_T, &_decoder_decoded_T_2, &{io_inst[0], io_inst[1], io_inst[2], _GEN[1], _GEN[2], _GEN[3], _GEN[4], io_inst[13], _GEN[12]}, &_decoder_decoded_T_26, &_decoder_decoded_T_28, &_decoder_decoded_T_40, &_decoder_decoded_T_44, &_decoder_decoded_T_46, &_decoder_decoded_T_60, &_decoder_decoded_T_72};	// @[Cat.scala:33:92, pla.scala:78:21, :90:45, :91:29, :98:74, :114:39]
   assign io_sigs_ren1 = |{&_decoder_decoded_T, &_decoder_decoded_T_2, &_decoder_decoded_T_22, &_decoder_decoded_T_24, &_decoder_decoded_T_26, &_decoder_decoded_T_38, &_decoder_decoded_T_42, &_decoder_decoded_T_46, &_decoder_decoded_T_56, &_decoder_decoded_T_64};	// @[Cat.scala:33:92, pla.scala:98:74, :114:39]
   assign io_sigs_ren2 = |{&_decoder_decoded_T, &_decoder_decoded_T_2, &_decoder_decoded_T_12, &_decoder_decoded_T_22, &_decoder_decoded_T_24, &_decoder_decoded_T_26};	// @[Cat.scala:33:92, pla.scala:98:74, :114:39]

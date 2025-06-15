@@ -69,13 +69,13 @@
 `endif // not def INIT_RANDOM_PROLOG_
 
 module tag_array_0(	// @[DescribedSRAM.scala:17:26]
-  input  [5:0]  RW0_addr,
+  input  [4:0]  RW0_addr,
   input         RW0_en,
                 RW0_clk,
                 RW0_wmode,
-  input  [83:0] RW0_wdata,
+  input  [87:0] RW0_wdata,
   input  [3:0]  RW0_wmask,
-  output [83:0] RW0_rdata
+  output [87:0] RW0_rdata
 );
 
   tag_array_0_ext tag_array_0_ext (	// @[DescribedSRAM.scala:17:26]

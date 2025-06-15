@@ -86,7 +86,6 @@ module IBuf(
                 io_inst_0_ready,
   output        io_imem_ready,
   output [39:0] io_pc,
-  output        io_btb_resp_taken,
   output [4:0]  io_btb_resp_entry,
   output [7:0]  io_btb_resp_bht_history,
   output        io_inst_0_valid,
@@ -115,7 +114,6 @@ module IBuf(
   reg          buf_xcpt_gf_inst;	// @[IBuf.scala:35:16]
   reg          buf_xcpt_ae_inst;	// @[IBuf.scala:35:16]
   reg          buf_replay;	// @[IBuf.scala:35:16]
-  reg          ibufBTBResp_taken;	// @[IBuf.scala:36:24]
   reg  [4:0]   ibufBTBResp_entry;	// @[IBuf.scala:36:24]
   reg  [7:0]   ibufBTBResp_bht_history;	// @[IBuf.scala:36:24]
   wire [1:0]   _GEN = {1'h0, io_imem_bits_pc[1]};	// @[IBuf.scala:34:47, :41:86, package.scala:155:13]
@@ -150,7 +148,6 @@ module IBuf(
       buf_xcpt_gf_inst <= io_imem_bits_xcpt_gf_inst;	// @[IBuf.scala:35:16]
       buf_xcpt_ae_inst <= io_imem_bits_xcpt_ae_inst;	// @[IBuf.scala:35:16]
       buf_replay <= io_imem_bits_replay;	// @[IBuf.scala:35:16]
-      ibufBTBResp_taken <= io_imem_bits_btb_taken;	// @[IBuf.scala:36:24]
       ibufBTBResp_entry <= io_imem_bits_btb_entry;	// @[IBuf.scala:36:24]
       ibufBTBResp_bht_history <= io_imem_bits_btb_bht_history;	// @[IBuf.scala:36:24]
     end
@@ -193,7 +190,6 @@ module IBuf(
         buf_xcpt_gf_inst = _RANDOM_4[7];	// @[IBuf.scala:35:16]
         buf_xcpt_ae_inst = _RANDOM_4[8];	// @[IBuf.scala:35:16]
         buf_replay = _RANDOM_4[9];	// @[IBuf.scala:35:16]
-        ibufBTBResp_taken = _RANDOM_4[12];	// @[IBuf.scala:35:16, :36:24]
         ibufBTBResp_entry = _RANDOM_5[27:23];	// @[IBuf.scala:36:24]
         ibufBTBResp_bht_history = {_RANDOM_5[31:28], _RANDOM_6[3:0]};	// @[IBuf.scala:36:24]
       `endif // RANDOMIZE_REG_INIT
@@ -213,7 +209,6 @@ module IBuf(
   );
   assign io_imem_ready = io_inst_0_ready & _T & (nICReady >= nIC | ~(_io_imem_ready_T_4[1]));	// @[IBuf.scala:41:86, :42:25, :44:{47,60,73,80,87,94}]
   assign io_pc = nBufValid ? buf_pc : io_imem_bits_pc;	// @[IBuf.scala:34:47, :35:16, :82:15]
-  assign io_btb_resp_taken = _T_23 ? ibufBTBResp_taken : io_imem_bits_btb_taken;	// @[IBuf.scala:36:24, :81:15, :100:{40,59,73}]
   assign io_btb_resp_entry = _T_23 ? ibufBTBResp_entry : io_imem_bits_btb_entry;	// @[IBuf.scala:36:24, :81:15, :100:{40,59,73}]
   assign io_btb_resp_bht_history = _T_23 ? ibufBTBResp_bht_history : io_imem_bits_btb_bht_history;	// @[IBuf.scala:36:24, :81:15, :100:{40,59,73}]
   assign io_inst_0_valid = valid[0] & full_insn;	// @[IBuf.scala:74:{33,39}, :93:50, :94:{32,36}]

@@ -90,18 +90,18 @@ module L1MetadataArray(
   output [21:0] io_resp_3_tag
 );
 
-  wire [95:0] _tag_array_R0_data;	// @[HellaCache.scala:326:30]
-  reg  [4:0]  rst_cnt;	// @[HellaCache.scala:317:24]
-  wire [1:0]  _wdata_T_coh_state = rst_cnt[4] ? io_write_bits_data_coh_state : 2'h0;	// @[HellaCache.scala:317:24, :318:21, :320:18, Metadata.scala:161:16]
-  wire [21:0] _wdata_T_tag = rst_cnt[4] ? io_write_bits_data_tag : 22'h0;	// @[HellaCache.scala:293:14, :317:24, :318:21, :320:18]
-  wire        tag_array_MPORT_en = ~(rst_cnt[4]) | io_write_valid;	// @[HellaCache.scala:317:24, :318:21, :327:17]
+  wire [95:0] _tag_array_R0_data;	// @[HellaCache.scala:327:30]
+  reg  [4:0]  rst_cnt;	// @[HellaCache.scala:318:24]
+  wire [1:0]  _wdata_T_coh_state = rst_cnt[4] ? io_write_bits_data_coh_state : 2'h0;	// @[HellaCache.scala:318:24, :319:21, :321:18, Metadata.scala:161:16]
+  wire [21:0] _wdata_T_tag = rst_cnt[4] ? io_write_bits_data_tag : 22'h0;	// @[HellaCache.scala:294:14, :318:24, :319:21, :321:18]
+  wire        tag_array_MPORT_en = ~(rst_cnt[4]) | io_write_valid;	// @[HellaCache.scala:318:24, :319:21, :328:17]
   always @(posedge clock) begin
     if (reset)
-      rst_cnt <= 5'h0;	// @[HellaCache.scala:317:24]
-    else if (rst_cnt[4]) begin	// @[HellaCache.scala:317:24, :318:21]
+      rst_cnt <= 5'h0;	// @[HellaCache.scala:318:24]
+    else if (rst_cnt[4]) begin	// @[HellaCache.scala:318:24, :319:21]
     end
-    else	// @[HellaCache.scala:318:21]
-      rst_cnt <= rst_cnt + 5'h1;	// @[HellaCache.scala:317:24, :323:34]
+    else	// @[HellaCache.scala:319:21]
+      rst_cnt <= rst_cnt + 5'h1;	// @[HellaCache.scala:318:24, :324:34]
   end // always @(posedge)
   `ifndef SYNTHESIS
     `ifdef FIRRTL_BEFORE_INITIAL
@@ -114,33 +114,33 @@ module L1MetadataArray(
       `endif // INIT_RANDOM_PROLOG_
       `ifdef RANDOMIZE_REG_INIT
         _RANDOM_0 = `RANDOM;
-        rst_cnt = _RANDOM_0[4:0];	// @[HellaCache.scala:317:24]
+        rst_cnt = _RANDOM_0[4:0];	// @[HellaCache.scala:318:24]
       `endif // RANDOMIZE_REG_INIT
     end // initial
     `ifdef FIRRTL_AFTER_INITIAL
       `FIRRTL_AFTER_INITIAL
     `endif // FIRRTL_AFTER_INITIAL
   `endif // not def SYNTHESIS
-  tag_array tag_array (	// @[HellaCache.scala:326:30]
+  tag_array tag_array (	// @[HellaCache.scala:327:30]
     .R0_addr (io_read_bits_idx),
-    .R0_en   (~tag_array_MPORT_en & io_read_valid),	// @[Decoupled.scala:51:35, HellaCache.scala:327:17, :333:20]
+    .R0_en   (~tag_array_MPORT_en & io_read_valid),	// @[Decoupled.scala:51:35, HellaCache.scala:328:17, :334:20]
     .R0_clk  (clock),
-    .W0_addr (rst_cnt[4] ? io_write_bits_idx : rst_cnt[3:0]),	// @[HellaCache.scala:317:24, :318:21, :319:18]
-    .W0_en   (tag_array_MPORT_en),	// @[HellaCache.scala:327:17]
+    .W0_addr (rst_cnt[4] ? io_write_bits_idx : rst_cnt[3:0]),	// @[HellaCache.scala:318:24, :319:21, :320:18]
+    .W0_en   (tag_array_MPORT_en),	// @[HellaCache.scala:328:17]
     .W0_clk  (clock),
-    .W0_data ({_wdata_T_coh_state, _wdata_T_tag, _wdata_T_coh_state, _wdata_T_tag, _wdata_T_coh_state, _wdata_T_tag, _wdata_T_coh_state, _wdata_T_tag}),	// @[HellaCache.scala:320:18, :326:30]
-    .W0_mask (rst_cnt[4] ? io_write_bits_way_en : 4'hF),	// @[HellaCache.scala:317:24, :318:21, :321:18]
+    .W0_data ({_wdata_T_coh_state, _wdata_T_tag, _wdata_T_coh_state, _wdata_T_tag, _wdata_T_coh_state, _wdata_T_tag, _wdata_T_coh_state, _wdata_T_tag}),	// @[HellaCache.scala:321:18, :327:30]
+    .W0_mask (rst_cnt[4] ? io_write_bits_way_en : 4'hF),	// @[HellaCache.scala:318:24, :319:21, :322:18]
     .R0_data (_tag_array_R0_data)
   );
-  assign io_read_ready = ~tag_array_MPORT_en;	// @[HellaCache.scala:327:17, :333:20]
-  assign io_write_ready = rst_cnt[4];	// @[HellaCache.scala:317:24, :318:21]
-  assign io_resp_0_coh_state = _tag_array_R0_data[23:22];	// @[HellaCache.scala:326:30, :331:77]
-  assign io_resp_0_tag = _tag_array_R0_data[21:0];	// @[HellaCache.scala:326:30, :331:77]
-  assign io_resp_1_coh_state = _tag_array_R0_data[47:46];	// @[HellaCache.scala:326:30, :331:77]
-  assign io_resp_1_tag = _tag_array_R0_data[45:24];	// @[HellaCache.scala:326:30, :331:77]
-  assign io_resp_2_coh_state = _tag_array_R0_data[71:70];	// @[HellaCache.scala:326:30, :331:77]
-  assign io_resp_2_tag = _tag_array_R0_data[69:48];	// @[HellaCache.scala:326:30, :331:77]
-  assign io_resp_3_coh_state = _tag_array_R0_data[95:94];	// @[HellaCache.scala:326:30, :331:77]
-  assign io_resp_3_tag = _tag_array_R0_data[93:72];	// @[HellaCache.scala:326:30, :331:77]
+  assign io_read_ready = ~tag_array_MPORT_en;	// @[HellaCache.scala:328:17, :334:20]
+  assign io_write_ready = rst_cnt[4];	// @[HellaCache.scala:318:24, :319:21]
+  assign io_resp_0_coh_state = _tag_array_R0_data[23:22];	// @[HellaCache.scala:327:30, :332:77]
+  assign io_resp_0_tag = _tag_array_R0_data[21:0];	// @[HellaCache.scala:327:30, :332:77]
+  assign io_resp_1_coh_state = _tag_array_R0_data[47:46];	// @[HellaCache.scala:327:30, :332:77]
+  assign io_resp_1_tag = _tag_array_R0_data[45:24];	// @[HellaCache.scala:327:30, :332:77]
+  assign io_resp_2_coh_state = _tag_array_R0_data[71:70];	// @[HellaCache.scala:327:30, :332:77]
+  assign io_resp_2_tag = _tag_array_R0_data[69:48];	// @[HellaCache.scala:327:30, :332:77]
+  assign io_resp_3_coh_state = _tag_array_R0_data[95:94];	// @[HellaCache.scala:327:30, :332:77]
+  assign io_resp_3_tag = _tag_array_R0_data[93:72];	// @[HellaCache.scala:327:30, :332:77]
 endmodule
 

@@ -184,10 +184,10 @@ module TLXbar_9(
   `endif // not def SYNTHESIS
   assign auto_in_a_ready = ~(auto_in_a_bits_address[16]) & auto_out_0_a_ready | auto_in_a_bits_address[16] & auto_out_1_a_ready;	// @[Mux.scala:27:73, Parameters.scala:137:{45,65}]
   assign auto_in_d_valid = out_9_valid;	// @[Arbiter.scala:126:29]
-  assign auto_in_d_bits_opcode = (muxStateEarly_0 ? auto_out_0_d_bits_opcode : 3'h0) | (muxStateEarly_1 ? auto_out_1_d_bits_opcode : 3'h0);	// @[Arbiter.scala:118:30, Bundles.scala:259:74, Mux.scala:27:73]
+  assign auto_in_d_bits_opcode = (muxStateEarly_0 ? auto_out_0_d_bits_opcode : 3'h0) | (muxStateEarly_1 ? auto_out_1_d_bits_opcode : 3'h0);	// @[Arbiter.scala:118:30, Bundles.scala:260:74, Mux.scala:27:73]
   assign auto_in_d_bits_size = (muxStateEarly_0 ? auto_out_0_d_bits_size : 2'h0) | (muxStateEarly_1 ? auto_out_1_d_bits_size : 2'h0);	// @[Arbiter.scala:118:30, Mux.scala:27:73]
-  assign auto_in_d_bits_source = (muxStateEarly_0 ? auto_out_0_d_bits_source : 9'h0) | (muxStateEarly_1 ? auto_out_1_d_bits_source : 9'h0);	// @[Arbiter.scala:118:30, Bundles.scala:259:74, Mux.scala:27:73]
-  assign auto_in_d_bits_data = (muxStateEarly_0 ? auto_out_0_d_bits_data : 64'h0) | (muxStateEarly_1 ? auto_out_1_d_bits_data : 64'h0);	// @[Arbiter.scala:118:30, Bundles.scala:259:74, Mux.scala:27:73]
+  assign auto_in_d_bits_source = (muxStateEarly_0 ? auto_out_0_d_bits_source : 9'h0) | (muxStateEarly_1 ? auto_out_1_d_bits_source : 9'h0);	// @[Arbiter.scala:118:30, Bundles.scala:260:74, Mux.scala:27:73]
+  assign auto_in_d_bits_data = (muxStateEarly_0 ? auto_out_0_d_bits_data : 64'h0) | (muxStateEarly_1 ? auto_out_1_d_bits_data : 64'h0);	// @[Arbiter.scala:118:30, Bundles.scala:260:74, Mux.scala:27:73]
   assign auto_out_1_a_valid = auto_in_a_valid & auto_in_a_bits_address[16];	// @[Parameters.scala:137:45, Xbar.scala:431:50]
   assign auto_out_1_a_bits_opcode = auto_in_a_bits_opcode;
   assign auto_out_1_a_bits_size = auto_in_a_bits_size;

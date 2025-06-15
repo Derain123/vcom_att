@@ -193,8 +193,8 @@ module ProbeUnit(
         req_size = _RANDOM_0[12:9];	// @[NBDcache.scala:552:22, :554:16]
         req_source = _RANDOM_0[15:13];	// @[NBDcache.scala:552:22, :554:16]
         req_address = {_RANDOM_0[31:16], _RANDOM_1[15:0]};	// @[NBDcache.scala:552:22, :554:16]
-        way_en = _RANDOM_3[28:25];	// @[NBDcache.scala:558:19]
-        old_coh_state = _RANDOM_3[30:29];	// @[NBDcache.scala:558:19, :560:20]
+        way_en = _RANDOM_3[29:26];	// @[NBDcache.scala:558:19]
+        old_coh_state = _RANDOM_3[31:30];	// @[NBDcache.scala:558:19, :560:20]
       `endif // RANDOMIZE_REG_INIT
     end // initial
     `ifdef FIRRTL_AFTER_INITIAL

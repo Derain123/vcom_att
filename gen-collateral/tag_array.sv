@@ -68,7 +68,7 @@
   `endif // RANDOMIZE
 `endif // not def INIT_RANDOM_PROLOG_
 
-module tag_array(	// @[HellaCache.scala:326:30]
+module tag_array(	// @[HellaCache.scala:327:30]
   input  [3:0]  R0_addr,
   input         R0_en,
                 R0_clk,
@@ -80,7 +80,7 @@ module tag_array(	// @[HellaCache.scala:326:30]
   output [95:0] R0_data
 );
 
-  tag_array_ext tag_array_ext (	// @[HellaCache.scala:326:30]
+  tag_array_ext tag_array_ext (	// @[HellaCache.scala:327:30]
     .R0_addr (R0_addr),
     .R0_en   (R0_en),
     .R0_clk  (R0_clk),

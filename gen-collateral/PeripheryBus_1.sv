@@ -380,11 +380,11 @@ module PeripheryBus_1(
   reg  [2:0]      state;	// @[CustomBootPin.scala:43:28]
   wire            _T_1 = state == 3'h1;	// @[CustomBootPin.scala:43:28, :47:24]
   wire            x1_2_a_valid = (|state) & (_T_1 | state != 3'h2 & state == 3'h3);	// @[CustomBootPin.scala:43:28, :44:20, :47:24, :50:24, :57:38, :59:66]
-  wire [2:0]      _GEN = state == 3'h5 & ~custom_boot ? 3'h0 : state;	// @[Bundles.scala:259:74, CustomBootPin.scala:43:28, :47:24, :70:58, :71:{29,43,51}]
+  wire [2:0]      _GEN = state == 3'h5 & ~custom_boot ? 3'h0 : state;	// @[Bundles.scala:260:74, CustomBootPin.scala:43:28, :47:24, :70:58, :71:{29,43,51}]
   wire [7:0][2:0] _GEN_0 = {{_GEN}, {_GEN}, {_GEN}, {_in_xbar_auto_in_1_d_valid ? 3'h5 : state}, {_in_xbar_auto_in_1_a_ready & x1_2_a_valid ? 3'h4 : state}, {_in_xbar_auto_in_1_d_valid ? 3'h3 : state}, {_in_xbar_auto_in_1_a_ready & x1_2_a_valid ? 3'h2 : state}, {custom_boot ? 3'h1 : state}};	// @[CustomBootPin.scala:43:28, :44:20, :47:24, :48:{46,54}, :57:{30,38}, :59:{58,66}, :68:{30,38}, :70:{50,58}, :71:{43,51}, Decoupled.scala:51:35, PeripheryBus.scala:49:29]
   always @(posedge _fixedClockNode_auto_out_0_clock) begin	// @[ClockGroup.scala:110:107]
     if (_fixedClockNode_auto_out_0_reset)	// @[ClockGroup.scala:110:107]
-      state <= 3'h0;	// @[Bundles.scala:259:74, CustomBootPin.scala:43:28]
+      state <= 3'h0;	// @[Bundles.scala:260:74, CustomBootPin.scala:43:28]
     else	// @[ClockGroup.scala:110:107]
       state <= _GEN_0[state];	// @[CustomBootPin.scala:43:28, :47:24, :48:46, :57:30, :59:58, :68:30, :70:50]
   end // always @(posedge)
