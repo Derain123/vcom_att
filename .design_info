@@ -1,0 +1,114 @@
+{
+	"ConfigFile" : "hw-config.json",
+	"DB_files" : 
+	[
+		{
+			"signal_access" : 
+			{
+				"fileIDArray" : 
+				[
+					0
+				],
+				"filename" : "sa.db"
+			}
+		},
+		{
+			"normal_probe" : 
+			{
+				"fileIDArray" : 
+				[
+					0
+				],
+				"filename" : "np.db"
+			}
+		},
+		{
+			"memory_access" : 
+			{
+				"fileIDArray" : 
+				[
+					0
+				],
+				"filename" : "ma.db"
+			}
+		},
+		{
+			"trigger_net" : 
+			{
+				"fileIDArray" : 
+				[
+					0
+				],
+				"filename" : "tn.db"
+			}
+		},
+		{
+			"trigger_clk" : 
+			{
+				"fileIDArray" : 
+				[
+					0
+				],
+				"filename" : "tc.db"
+			}
+		}
+	],
+	"DDR" : 
+	[
+		{
+			"DDRBankNumber1" : 0,
+			"DDRBankNumber2" : 0,
+			"DDRBankNumber3" : 0,
+			"DDRFPGANumber" : "0.0",
+			"DDRSize" : 16384
+		}
+	],
+	"DDR4_CHANNEL" : 
+	[
+		{
+			"Channel" : 
+			[
+				0
+			],
+			"FPGANumber" : "0.0",
+			"isXRAM" : "true"
+		}
+	],
+	"Device" : "P2E",
+	"DriverlessValue" : "drvless_value.txt",
+	"GCLK" : 1,
+	"IS_DUT" : "off",
+	"NewClock" : true,
+	"ResetDutMasterFpga" : 
+	{
+		"BoardId" : 0,
+		"FpgaId" : 0
+	},
+	"ResetDutMinDuration" : 0,
+	"cvr_path" : "cvr",
+	"default_div" : 15,
+	"default_slot_frequency" : 125000000,
+	"default_virtual_frequency" : 5000000,
+	"first_part_info" : 
+	{
+		"board_id" : 0,
+		"fpga_id" : 0
+	},
+	"masterFPGA" : "0.0",
+	"mode" : 0,
+	"svr" : 
+	{
+		"comp_path" : "cvr",
+		"default_period" : 1024,
+		"enabled" : false,
+		"num_probe" : 0,
+		"num_readback" : 0,
+		"probe_db" : "sig_1",
+		"readback_db" : "sig_n",
+		"rt_path" : "cvr",
+		"scopes" : []
+	},
+	"top_module" : "VCU118FPGATestHarness",
+	"uc_flag" : 0,
+	"waveform_precision" : ""
+}

@@ -1,0 +1,91 @@
+[
+  {
+    "module_name": "cc_dir_ext",
+    "depth": 1024,
+    "width": 152,
+    "masked": true,
+    "read": false,
+    "write": false,
+    "readwrite": true,
+    "mask_granularity": 19,
+    "extra_ports": [],
+    "hierarchy": [
+      "ChipTop.system.subsystem_l2_wrapper.l2.inclusive_cache_bank_sched.directory.cc_dir.cc_dir_ext"
+    ]
+  },
+  {
+    "module_name": "cc_banks_0_ext",
+    "depth": 16384,
+    "width": 64,
+    "masked": false,
+    "read": false,
+    "write": false,
+    "readwrite": true,
+    "extra_ports": [],
+    "hierarchy": [
+      "ChipTop.system.subsystem_l2_wrapper.l2.inclusive_cache_bank_sched.bankedStore.cc_banks_3.cc_banks_0_ext",
+      "ChipTop.system.subsystem_l2_wrapper.l2.inclusive_cache_bank_sched.bankedStore.cc_banks_2.cc_banks_0_ext",
+      "ChipTop.system.subsystem_l2_wrapper.l2.inclusive_cache_bank_sched.bankedStore.cc_banks_1.cc_banks_0_ext",
+      "ChipTop.system.subsystem_l2_wrapper.l2.inclusive_cache_bank_sched.bankedStore.cc_banks_0.cc_banks_0_ext"
+    ]
+  },
+  {
+    "module_name": "tag_array_ext",
+    "depth": 16,
+    "width": 96,
+    "masked": true,
+    "read": true,
+    "write": true,
+    "readwrite": false,
+    "mask_granularity": 24,
+    "extra_ports": [],
+    "hierarchy": [
+      "ChipTop.system.tile_prci_domain.tile_reset_domain_tile.dcache.meta.tag_array.tag_array_ext"
+    ]
+  },
+  {
+    "module_name": "array_0_0_0_ext",
+    "depth": 128,
+    "width": 64,
+    "masked": false,
+    "read": true,
+    "write": true,
+    "readwrite": false,
+    "extra_ports": [],
+    "hierarchy": [
+      "ChipTop.system.tile_prci_domain.tile_reset_domain_tile.dcache.data.array_3_0_0.array_0_0_0_ext",
+      "ChipTop.system.tile_prci_domain.tile_reset_domain_tile.dcache.data.array_2_0_0.array_0_0_0_ext",
+      "ChipTop.system.tile_prci_domain.tile_reset_domain_tile.dcache.data.array_1_0_0.array_0_0_0_ext",
+      "ChipTop.system.tile_prci_domain.tile_reset_domain_tile.dcache.data.array_0_0_0.array_0_0_0_ext"
+    ]
+  },
+  {
+    "module_name": "tag_array_0_ext",
+    "depth": 64,
+    "width": 84,
+    "masked": true,
+    "read": false,
+    "write": false,
+    "readwrite": true,
+    "mask_granularity": 21,
+    "extra_ports": [],
+    "hierarchy": [
+      "ChipTop.system.tile_prci_domain.tile_reset_domain_tile.frontend.icache.tag_array.tag_array_0_ext"
+    ]
+  },
+  {
+    "module_name": "data_arrays_0_ext",
+    "depth": 512,
+    "width": 128,
+    "masked": true,
+    "read": false,
+    "write": false,
+    "readwrite": true,
+    "mask_granularity": 32,
+    "extra_ports": [],
+    "hierarchy": [
+      "ChipTop.system.tile_prci_domain.tile_reset_domain_tile.frontend.icache.data_arrays_1.data_arrays_0_ext",
+      "ChipTop.system.tile_prci_domain.tile_reset_domain_tile.frontend.icache.data_arrays_0.data_arrays_0_ext"
+    ]
+  }
+]
