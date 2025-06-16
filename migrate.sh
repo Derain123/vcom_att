@@ -3,9 +3,10 @@
 # 修复版脚本：解决重复实例化和条件编译问题
 set -e
 
-WORK_DIR= ${CASE_PATH}
+WORK_DIR=${CASE_PATH}
 SRC_DIR="$WORK_DIR/gen-collateral"
 DST_DIR="$WORK_DIR/modified_v"
+echo "DST_DIR: $DST_DIR"
 
 echo "=== 开始修改文件脚本 - 修复版 ==="
 
@@ -137,12 +138,17 @@ sed -i '/^  wire        _axi4asink_auto_out_r_ready;/a\
 # 修改复位信号
 sed -i 's/\.reset                          (reset),/.reset                          (com_reset),/' "$DST_DIR/XilinxVCU118MIGIsland.sv"
 
+
 # 使用Python脚本正确添加XRAM接口扩展到正确位置
+# 设置环境变量传递给Python
+export TARGET_FILE="$DST_DIR/XilinxVCU118MIGIsland.sv"
+
 python << 'EOF'
 # -*- coding: utf-8 -*-
 import re
+import os
 
-filename = "$DST_DIR/XilinxVCU118MIGIsland.sv"
+filename = os.environ.get('TARGET_FILE')
 
 with open(filename, 'r') as f:
     content = f.read()
@@ -273,6 +279,17 @@ if axi4asink_end != -1:
     
     # 插入XEPIC代码
     content = content[:axi4asink_end] + xepic_code + content[axi4asink_end:]
+    
+    # 找到vcu118mig模块的结束位置并插入endif
+    vcu118mig_start = content.find('vcu118mig blackbox')
+    if vcu118mig_start != -1:
+        # 从vcu118mig开始位置向后找到对应的模块结束位置
+        vcu118mig_end = content.find('  );', vcu118mig_start)
+        if vcu118mig_end != -1:
+            vcu118mig_end += 4  # include '  );'
+            # 在vcu118mig模块结束后插入endif
+            endif_code = '\n`endif'
+            content = content[:vcu118mig_end] + endif_code + content[vcu118mig_end:]
 
 # 写回文件
 with open(filename, 'w') as f:
