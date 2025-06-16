@@ -26,35 +26,50 @@ make SUB_PROJECT=vcu118 CONFIG=RocketVCU118Config bitstream
 
 #### 2.2 运行平台移植脚本
 ```bash
-# 运行主要的平台移植脚本
+# 查看脚本帮助信息
+./migrate.sh --help
+
+# 基本移植（使用原始ROM）
 ./migrate.sh
+
+# 使用特定ROM配置移植
+./migrate.sh hc    # 异构核配置
+./migrate.sh lc    # 小核配置
+./migrate.sh mc    # 多核配置
+
+# 移植并自动修正XEPIC代码位置
+./migrate.sh --fix-position hc
+
+# 仅修正已有文件的XEPIC代码位置
+./migrate.sh --fix-position
 ```
+
 此脚本会自动完成：
-- RTL文件的修改和适配
-- VCU118平台配置的添加
-- 调试接口的集成
-- 时钟和复位逻辑的调整
+- TLROM文件替换（根据配置类型）
+- Rocket.sv添加调试追踪标记
+- VCU118FPGATestHarness.sv添加XEPIC条件编译支持
+- XilinxVCU118MIGIsland.sv添加XRAM接口
+- 自动位置修正（使用--fix-position参数时）
 
-
-#### 2.3 修正代码位置（如需要）
-```bash
-# 如果出现位置错误，运行位置修正脚本
-python fix_position.py modified_v/XilinxVCU118MIGIsland.sv
-```
-
-#### 2.4 验证移植结果
+#### 2.3 验证移植结果
 ```bash
 # 检查生成的RTL文件
 ls -la modified_v/
 
+# 验证XEPIC宏定义
+grep -c "XEPIC_P2E" modified_v/*.sv
+
+# 验证trace_net标记
+grep -c "trace_net" modified_v/Rocket.sv
+
+# 验证XRAM接口
+grep -A 5 -B 5 "xram0_read" modified_v/XilinxVCU118MIGIsland.sv
+
 # 检查更新的filelist
 cat filelist_new.f | head -10
-
-# 验证关键功能是否正确添加
-grep -c "VCU118" modified_v/*.sv
 ```
 
-#### 2.5 编译设计
+#### 2.4 编译设计
 ```bash
 # 综合
 make vsyn    # 生成VCU118FPGATestHarness.vm和area.log
@@ -64,8 +79,68 @@ make vcom    # 运行vcom_compile.tcl脚本
 
 # 布局布线
 make pnr     # 在fpgaCompDir目录中执行
+```
+
+### 3. 运行流程
+```bash
+# 修改.debug_info文件
+vim .debug_info    # 修改div:15
+
+# 进入vdbg工具
+vdbg    
+
+# 运行tcl脚本
+source debug_trigger.tcl     
+
+# 后门写入测试程序
+memory -write -fpga 0.A -channel 0 -file /home/tools/guochuang_backdoor_data/brno_c_22.hex 
+
+# 继续运行
+run -nowait 
 
 ```
+
+## 脚本功能详解
+
+### migrate.sh 脚本参数
+```bash
+# 显示帮助信息
+./migrate.sh --help
+./migrate.sh -h
+
+# 显示版本信息  
+./migrate.sh --version
+./migrate.sh -v
+
+# ROM配置类型
+./migrate.sh hc          # 异构核配置 (TL_ROM_hc.sv)
+./migrate.sh lc          # 小核配置 (TL_ROM_lc.sv)  
+./migrate.sh mc          # 多核配置 (TL_ROM_mc.sv)
+./migrate.sh             # 原始配置 (TLROM.sv)
+
+# XEPIC位置修正
+./migrate.sh --fix-position        # 仅修正位置
+./migrate.sh --fix-position hc     # 完整流程+位置修正
+```
+
+### 脚本处理的文件
+| 源文件 | 目标文件 | 处理内容 |
+|--------|----------|----------|
+| `tl_rom/TL_ROM_*.sv` | `modified_v/TLROM.sv` | ROM类型替换 |
+| `gen-collateral/Rocket.sv` | `modified_v/Rocket.sv` | 添加trace_net标记 |
+| `gen-collateral/VCU118FPGATestHarness.sv` | `modified_v/VCU118FPGATestHarness.sv` | 添加XEPIC条件编译 |
+| `gen-collateral/XilinxVCU118MIGIsland.sv` | `modified_v/XilinxVCU118MIGIsland.sv` | 添加XRAM接口 |
+
+### 执行步骤说明
+1. **环境检查** - 验证bash/python版本、必需命令、CASE_PATH设置
+2. **输出目录设置** - 创建/清理modified_v目录
+3. **TLROM处理** - 根据参数复制对应ROM文件
+4. **Rocket处理** - 为关键信号添加调试追踪标记
+5. **TestHarness处理** - 添加XEPIC宏定义和条件编译
+6. **MIGIsland处理** - 添加XRAM接口和复位逻辑
+7. **位置修正** - 修正XEPIC代码在文件中的位置（可选）
+8. **结果统计** - 验证处理结果并生成统计信息
+9. **文件列表更新** - 调用update_filelist.sh更新编译列表
 
 ## 常见功能介绍
 
@@ -107,7 +182,7 @@ vim hw-config.hdf
 
 ```
 
-### 3. 加入可写/刻度信号
+### 3. 加入可写/可读信号
 ```tcl
 # 在vcom_compile脚本中加入
  write_net -add {reset}
@@ -142,8 +217,16 @@ xwave -wdb wave_mb0.xvcf
 ```
 
 ## 输出文件
-- `rtl/` - RTL源代码目录
-- `filelist.f` - 文件列表
+
+### 脚本生成文件
+- `modified_v/` - 修改后的RTL文件目录
+  - `TLROM.sv` - ROM文件（根据配置替换）
+  - `Rocket.sv` - 添加了trace标记的Rocket核心
+  - `VCU118FPGATestHarness.sv` - 添加了XEPIC支持的测试平台
+  - `XilinxVCU118MIGIsland.sv` - 添加了XRAM接口的内存岛
+- `filelist_new.f` - 更新后的文件列表
+
+### 编译生成文件
 - `VCU118FPGATestHarness.vm` - 综合结果
 - `area.log` - 面积报告
 - `vsyn.log` - 综合日志
@@ -153,23 +236,56 @@ xwave -wdb wave_mb0.xvcf
 
 ## 故障排除
 
-### 常见问题
-1. 综合失败
+### 脚本相关问题
+1. **CASE_PATH未设置**
+   ```bash
+   [错误] 未设置CASE_PATH环境变量
+   请在执行前运行: source setup.csh
+   ```
+   解决方法：运行 `source setup.csh` 设置环境变量
+
+2. **源文件目录不存在**
+   ```bash
+   [错误] 源文件目录不存在: /path/to/gen-collateral
+   ```
+   解决方法：确认已从chipyard生成gen-collateral目录
+
+3. **Python脚本不存在**
+   ```bash
+   [错误] 修正脚本不存在: /path/to/fix_position.py
+   ```
+   解决方法：确认fix_position.py文件在脚本同一目录下
+
+4. **目标文件不存在（--fix-position）**
+   ```bash
+   [错误] 目标文件不存在: /path/to/modified_v/XilinxVCU118MIGIsland.sv
+   ```
+   解决方法：先运行完整迁移流程，再使用--fix-position
+
+5. **ROM文件不存在**
+   ```bash
+   [警告] 未找到ROM文件: /path/to/tl_rom/TL_ROM_hc.sv
+   [INFO] 回退到使用原始TLROM.sv
+   ```
+   解决方法：确认tl_rom目录下有对应的ROM文件
+
+### 系统相关问题
+1. **综合失败**
    - 检查RTL代码语法
    - 确认约束文件正确性
    - 查看综合日志
 
-2. 仿真异常
+2. **仿真异常**
    - 检查测试程序
    - 确认信号连接
    - 查看仿真日志
 
-3. 时序违例
+3. **时序违例**
    - 检查时钟约束
    - 优化关键路径
    - 查看时序报告
 
-4. Filelist错误
+4. **Filelist错误**
    - 检查文件路径是否正确
    - 确认文件是否存在
    - 验证文件顺序是否合理
