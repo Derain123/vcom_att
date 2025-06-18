@@ -10,10 +10,11 @@
 # 最后修改: 2025-06-17
 # 
 # 功能说明:
-#   1. 处理TLROM文件替换 (支持hc/lc/mc三种ROM类型)
+#   1. 处理TLROM文件替换 (支持1b4l/1b5l/4l/lc四种ROM类型)
 #   2. 为Rocket.sv添加调试追踪标记
 #   3. 为VCU118FPGATestHarness.sv添加XEPIC条件编译支持
 #   4. 为XilinxVCU118MIGIsland.sv添加XRAM接口
+#   5. 向后兼容支持hc/mc选项 (映射到1b4l/4l)
 #
 # 依赖要求:
 #   - bash >= 4.0
@@ -24,11 +25,12 @@
 #   CASE_PATH: 项目根目录路径 (必需)
 #
 # 用法: 
-#   ./migrate.sh [-h|--help] [hc|lc|mc]
+#   ./migrate.sh [-h|--help] [1b4l|1b5l|4l|lc|hc|mc]
 #
 # 示例:
 #   export CASE_PATH=/path/to/project
-#   ./migrate.sh hc    # 使用异构核配置
+#   ./migrate.sh 1b4l  # 使用1大核4小核配置
+#   ./migrate.sh 4l    # 使用4小核配置
 #   ./migrate.sh       # 使用原始ROM
 #
 # 许可证: SEU-ACAL
@@ -92,9 +94,14 @@ echo "  -v, --version  显示版本信息"
 echo "  --fix-position 修正XEPIC代码位置"
 echo ""
 echo "ROM类型:"
-echo "  hc             使用异构核配置 (TL_ROM_hc.sv)"
-echo "  lc             使用小核配置 (TL_ROM_lc.sv)"
-echo "  mc             使用多核配置 (TL_ROM_mc.sv)"
+echo "  1b4l           使用1大核4小核配置 (TLROM_1b4l.sv)"
+echo "  1b5l           使用1大核5小核配置 (TLROM_1b5l.sv)"
+echo "  4l             使用4小核配置 (TLROM_4l.sv)"
+echo "  lc             使用小核配置 (TLROM_lc.sv)"
+echo ""
+echo "向后兼容选项 (已弃用，建议使用上述具体选项):"
+echo "  hc             使用异构核配置 (等同于1b4l)"
+echo "  mc             使用多核配置 (等同于4l)"
 echo "  (无参数)       使用原始TLROM.sv"
     echo ""
     echo "环境变量:"
@@ -102,10 +109,11 @@ echo "  CASE_PATH      项目根目录路径 (通过setup.csh设置)"
 echo ""
 echo "示例:"
 echo "  source setup.csh           # 设置环境变量"
-echo "  ./$SCRIPT_NAME hc          # 使用异构核配置"
+echo "  ./$SCRIPT_NAME 1b4l        # 使用1大核4小核配置"
+echo "  ./$SCRIPT_NAME 4l          # 使用4小核配置"
 echo "  ./$SCRIPT_NAME             # 使用原始ROM"
-echo "  ./$SCRIPT_NAME --fix-position hc  # 使用异构核配置并修正XEPIC位置"
-echo "  ./$SCRIPT_NAME --fix-position     # 仅修正XEPIC位置"
+echo "  ./$SCRIPT_NAME --fix-position 1b4l  # 使用1大核4小核配置并修正XEPIC位置"
+echo "  ./$SCRIPT_NAME --fix-position       # 仅修正XEPIC位置"
 }
 
 # 日志函数
@@ -220,8 +228,20 @@ parse_arguments() {
                 FIX_POSITION=true
                 shift
                 ;;
-            hc|lc|mc)
+            1b4l|1b5l|4l|lc)
                 ROM_TYPE="$1"
+                shift
+                ;;
+            hc)
+                # 向后兼容：hc映射到1b4l
+                ROM_TYPE="1b4l"
+                log_warning "选项 'hc' 已弃用，自动映射到 '1b4l' (1大核4小核配置)"
+                shift
+                ;;
+            mc)
+                # 向后兼容：mc映射到4l
+                ROM_TYPE="4l"
+                log_warning "选项 'mc' 已弃用，自动映射到 '4l' (4小核配置)"
                 shift
                 ;;
             -*)
@@ -257,7 +277,7 @@ check_environment() {
     WORK_DIR="$CASE_PATH"
     SRC_DIR="$WORK_DIR/gen-collateral"
     DST_DIR="$WORK_DIR/modified_v"
-    ROM_SRC_DIR="$WORK_DIR/tl_rom"
+    ROM_SRC_DIR="$SCRIPT_DIR/tl_rom"
     
     log_info "工作目录: $WORK_DIR"
     log_info "源文件目录: $SRC_DIR"
@@ -292,14 +312,30 @@ setup_output_directory() {
 process_tlrom() {
     log_step "2" "处理TLROM文件"
     
-    if [[ -n "$ROM_TYPE" && "$ROM_TYPE" =~ ^(hc|lc|mc)$ ]]; then
-        local rom_file="TL_ROM_${ROM_TYPE}.sv"
+    if [[ -n "$ROM_TYPE" && "$ROM_TYPE" =~ ^(1b4l|1b5l|4l|lc)$ ]]; then
+        local rom_file="TLROM_${ROM_TYPE}.sv"
         local rom_path="$ROM_SRC_DIR/$rom_file"
         
         if [[ -f "$rom_path" ]]; then
             log_info "使用自定义ROM: $rom_file"
             cp "$rom_path" "$DST_DIR/TLROM.sv"
             log_success "已将 $rom_file 复制为 TLROM.sv"
+            
+            # 显示ROM配置详细信息
+            case "$ROM_TYPE" in
+                1b4l)
+                    log_info "ROM配置: 1大核4小核 (异构架构)"
+                    ;;
+                1b5l)
+                    log_info "ROM配置: 1大核5小核 (异构架构)"
+                    ;;
+                4l)
+                    log_info "ROM配置: 4小核 (多核架构)"
+                    ;;
+                lc)
+                    log_info "ROM配置: 小核 (单核架构)"
+                    ;;
+            esac
         else
             log_warning "未找到ROM文件: $rom_path"
             log_info "回退到使用原始TLROM.sv"
@@ -707,8 +743,21 @@ generate_summary() {
 
     echo ""
     log_info "TLROM文件验证:"
-    if [[ -n "$ROM_TYPE" && "$ROM_TYPE" =~ ^(hc|lc|mc)$ ]]; then
-        echo "  ROM类型: $ROM_TYPE (来源: TL_ROM_${ROM_TYPE}.sv)"
+    if [[ -n "$ROM_TYPE" && "$ROM_TYPE" =~ ^(1b4l|1b5l|4l|lc)$ ]]; then
+        case "$ROM_TYPE" in
+            1b4l)
+                echo "  ROM类型: $ROM_TYPE - 1大核4小核配置 (来源: TLROM_${ROM_TYPE}.sv)"
+                ;;
+            1b5l)
+                echo "  ROM类型: $ROM_TYPE - 1大核5小核配置 (来源: TLROM_${ROM_TYPE}.sv)"
+                ;;
+            4l)
+                echo "  ROM类型: $ROM_TYPE - 4小核配置 (来源: TLROM_${ROM_TYPE}.sv)"
+                ;;
+            lc)
+                echo "  ROM类型: $ROM_TYPE - 小核配置 (来源: TLROM_${ROM_TYPE}.sv)"
+                ;;
+        esac
     else
         echo "  ROM类型: 原始 (来源: 原始TLROM.sv)"
     fi

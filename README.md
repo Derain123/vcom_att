@@ -23,6 +23,9 @@ cd $CHIPYARD/fpga
 make SUB_PROJECT=vcu118 CONFIG=RocketVCU118Config bitstream
 #然后将生成的gen-collateral文件夹复制到工程目录下
 ```
+> **⚠️ NOTE：** 此处如果出现板子类型找不到的报错不用理会，我们只需要verilog生成成功即可
+
+
 
 #### 2.2 运行平台移植脚本
 ```bash
@@ -33,16 +36,17 @@ make SUB_PROJECT=vcu118 CONFIG=RocketVCU118Config bitstream
 ./migrate.sh
 
 # 使用特定ROM配置移植
-./migrate.sh hc    # 异构核配置
+./migrate.sh 1b5l    # 1大核5小核配置
 ./migrate.sh lc    # 小核配置
-./migrate.sh mc    # 多核配置
+./migrate.sh 4l    # 4小核配置
 
 # 移植并自动修正XEPIC代码位置
-./migrate.sh --fix-position hc
+./migrate.sh --fix-position 1b5l
 
 # 仅修正已有文件的XEPIC代码位置
 ./migrate.sh --fix-position
 ```
+> **⚠️ NOTE：** --fix-position是必加的选项
 
 此脚本会自动完成：
 - TLROM文件替换（根据配置类型）
@@ -80,11 +84,12 @@ make vcom    # 运行vcom_compile.tcl脚本
 # 布局布线
 make pnr     # 在fpgaCompDir目录中执行
 ```
+> **⚠️ NOTE：** make pnr无需进入目录，在工作目录make即可
 
 ### 3. 运行流程
 ```bash
 # 修改.debug_info文件
-vim .debug_info    # 修改div:15
+vim .design_info    # 修改div:15
 
 # 进入vdbg工具
 vdbg    
@@ -99,6 +104,7 @@ memory -write -fpga 0.A -channel 0 -file /home/tools/guochuang_backdoor_data/brn
 run -nowait 
 
 ```
+> **⚠️ NOTE：** 自己的workload要求hex格式
 
 ## 脚本功能详解
 
@@ -112,11 +118,6 @@ run -nowait
 ./migrate.sh --version
 ./migrate.sh -v
 
-# ROM配置类型
-./migrate.sh hc          # 异构核配置 (TL_ROM_hc.sv)
-./migrate.sh lc          # 小核配置 (TL_ROM_lc.sv)  
-./migrate.sh mc          # 多核配置 (TL_ROM_mc.sv)
-./migrate.sh             # 原始配置 (TLROM.sv)
 
 # XEPIC位置修正
 ./migrate.sh --fix-position        # 仅修正位置
@@ -215,6 +216,7 @@ tracedb -upload;
 # 使用xWave查看波形
 xwave -wdb wave_mb0.xvcf
 ```
+> **⚠️ NOTE：** 修改debug_trigger.tcl
 
 ## 输出文件
 
