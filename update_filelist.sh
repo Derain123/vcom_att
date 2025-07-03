@@ -62,8 +62,8 @@ while read -r line; do
   clean_line="${clean_line%/\}/\}/P2_Emu/wrapper/\}}"
   clean_line="${clean_line%/\}}"
   
-  # 跳过xepic_golden_ip.sv和xram_bbox_wrapper.v，稍后单独处理
-  [[ "$clean_line" == "xepic_golden_ip.sv" || "$clean_line" == "xram_bbox_wrapper.v" ]] && continue
+  # 跳过xepic_golden_ip.sv、xram_bbox_wrapper.v和TestDriver.v，稍后单独处理或排除
+  [[ "$clean_line" == "xepic_golden_ip.sv" || "$clean_line" == "xram_bbox_wrapper.v" || "$clean_line" == "TestDriver.v" ]] && continue
   
   # 判断是否是xram相关文件
   is_xram=0
@@ -142,6 +142,18 @@ fi
 
 # 清理临时文件
 rm -f /tmp/gen_collateral_files.txt /tmp/filelist_current_files.txt
+
+# 清理不需要的文件条目（如果存在的话）
+echo ""
+echo "清理不需要的文件条目..."
+excluded_files=("TestDriver.v")
+
+for excluded_file in "${excluded_files[@]}"; do
+    if grep -q "${excluded_file}" filelist_new.f; then
+        echo "删除条目: ${excluded_file}"
+        sed -i "/\/${excluded_file}$/d" filelist_new.f
+    fi
+done
 
 echo ""
 echo "处理完成，新文件生成为 filelist_new.f"

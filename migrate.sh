@@ -395,8 +395,8 @@ process_test_harness() {
     cp "$src_file" "$dst_file"
     
     log_info "添加XEPIC宏定义"
-    # 在第2行后添加XEPIC宏定义
-    sed -i '2a\
+    # 在module声明之前添加XEPIC宏定义
+    sed -i '/^module /i\
 `define XEPIC_P2E\
 `define XEPIC_XRAM_RTL\
 ' "$dst_file"
@@ -420,6 +420,7 @@ process_test_harness() {
 
     log_info "修改复位逻辑"
     # 修改复位逻辑 - 添加条件编译
+    # 处理 _WIRE 信号
     sed -i '/assign _WIRE = _resetIBUF_O | _fpga_power_on_power_on_reset;/ {
         i\
   `ifndef XEPIC_P2E\
@@ -429,13 +430,26 @@ process_test_harness() {
   `endif
         d
     }' "$dst_file"
+    
+    # 处理 harnessSysPLLIn_reset 信号
+    sed -i '/assign harnessSysPLLIn_reset = _IBUF_O | _fpga_power_on_power_on_reset;/ {
+        i\
+  `ifndef XEPIC_P2E\
+            assign harnessSysPLLIn_reset = _IBUF_O | _fpga_power_on_power_on_reset;   // @[Xilinx.scala:103:21, TestHarness.scala:102:25, :115:38]\
+  `else\
+            assign harnessSysPLLIn_reset = reset | _fpga_power_on_power_on_reset;     // @[Xilinx.scala:103:21, TestHarness.scala:102:25, :115:38]\
+  `endif
+        d
+    }' "$dst_file"
 
     log_info "删除原始实例，避免重复"
     # 删除所有原始的时钟、复位和PLL相关实例，避免重复
-    sed -i '/^  IBUFDS #(/,/^  );$/d' "$dst_file"
-    sed -i '/^  harnessSysPLL harnessSysPLL (/,/^  );$/d' "$dst_file"
-    sed -i '/^  IBUF resetIBUF (/,/^  );$/d' "$dst_file"
-    sed -i '/^  PowerOnResetFPGAOnly fpga_power_on (/,/^  );$/d' "$dst_file"
+    # 使用更精确的匹配，避免意外删除endmodule
+    sed -i '/^  IBUFDS #(/,/^  );[[:space:]]*\/\/.*ClockOverlay\.scala/d' "$dst_file"
+    sed -i '/^  harnessSysPLL harnessSysPLL (/,/^  );[[:space:]]*\/\/.*XilinxShell\.scala/d' "$dst_file" 
+    sed -i '/^  IBUF resetIBUF (/,/^  );[[:space:]]*\/\/.*TestHarness\.scala/d' "$dst_file"
+    sed -i '/^  IBUF IBUF (/,/^  );[[:space:]]*\/\/.*TestHarness\.scala/d' "$dst_file"
+    sed -i '/^  PowerOnResetFPGAOnly fpga_power_on (/,/^  );[[:space:]]*\/\/.*Xilinx\.scala/d' "$dst_file"
 
     log_info "添加完整的条件编译块"
     # 在AnalogToUInt_1 a2b_4后添加完整的条件编译块
@@ -487,6 +501,13 @@ process_test_harness() {
 assign sdio_sel = 1'\''b0;
     }' "$dst_file"
 
+    log_info "确保endmodule存在"
+    # 检查文件末尾几行是否包含endmodule，如果没有则添加
+    if ! tail -n 5 "$dst_file" | grep -q "endmodule"; then
+        echo "endmodule" >> "$dst_file"
+        log_info "已添加缺失的endmodule"
+    fi
+
     log_success "VCU118FPGATestHarness.sv处理完成"
 }
 
@@ -504,10 +525,11 @@ process_mig_island() {
     cp "$src_file" "$dst_file"
     
     log_info "添加XEPIC宏定义"
-    # 在第2行后添加XEPIC宏定义
-    sed -i '2a\
+    # 在module声明之前添加XEPIC宏定义
+    sed -i '/^module /i\
 `define XEPIC_P2E\
-`define XEPIC_XRAM_RTL' "$dst_file"
+`define XEPIC_XRAM_RTL\
+' "$dst_file"
 
     log_info "处理复位逻辑"
     # 删除原来的_blackbox_c0_init_calib_complete声明行
