@@ -444,12 +444,11 @@ process_test_harness() {
 
     log_info "删除原始实例，避免重复"
     # 删除所有原始的时钟、复位和PLL相关实例，避免重复
-    # 使用更精确的匹配，避免意外删除endmodule
-    sed -i '/^  IBUFDS #(/,/^  );[[:space:]]*\/\/.*ClockOverlay\.scala/d' "$dst_file"
-    sed -i '/^  harnessSysPLL harnessSysPLL (/,/^  );[[:space:]]*\/\/.*XilinxShell\.scala/d' "$dst_file" 
-    sed -i '/^  IBUF resetIBUF (/,/^  );[[:space:]]*\/\/.*TestHarness\.scala/d' "$dst_file"
-    sed -i '/^  IBUF IBUF (/,/^  );[[:space:]]*\/\/.*TestHarness\.scala/d' "$dst_file"
-    sed -i '/^  PowerOnResetFPGAOnly fpga_power_on (/,/^  );[[:space:]]*\/\/.*Xilinx\.scala/d' "$dst_file"
+    sed -i '/^  IBUFDS #(/,/^  );/d' "$dst_file"
+    sed -i '/^  harnessSysPLL harnessSysPLL (/,/^  );/d' "$dst_file" 
+    sed -i '/^  IBUF resetIBUF (/,/^  );/d' "$dst_file"
+    sed -i '/^  IBUF IBUF (/,/^  );/d' "$dst_file"
+    sed -i '/^  PowerOnResetFPGAOnly fpga_power_on (/,/^  );/d' "$dst_file"
 
     log_info "添加完整的条件编译块"
     # 在AnalogToUInt_1 a2b_4后添加完整的条件编译块
